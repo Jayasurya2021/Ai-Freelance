@@ -1,5 +1,7 @@
 import React from 'react';
-import { Bookmark, Send, Users, MoreHorizontal, ExternalLink } from 'lucide-react';
+import { Bookmark, Send, Users, MoreHorizontal, ExternalLink, Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 
 const KanbanColumn = ({ title, icon: Icon, count, color, children }) => {
   const colorMap = {
@@ -26,24 +28,38 @@ const KanbanColumn = ({ title, icon: Icon, count, color, children }) => {
   );
 };
 
-const JobCard = ({ title, company, budget, date }) => (
+const JobCard = ({ title, company, budget, date, url }) => (
   <div className="p-4 rounded-xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/40 shadow-sm hover:border-blue-500/30 dark:hover:border-blue-500/30 transition-all duration-300 cursor-grab group">
     <div className="flex justify-between items-start mb-2">
       <h4 className="text-sm font-bold text-zinc-900 dark:text-white leading-snug group-hover:text-blue-500 transition-colors">{title}</h4>
-      <button className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
-        <MoreHorizontal size={16} />
-      </button>
+      <a href={url} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-blue-500 transition-colors">
+        <ExternalLink size={14} />
+      </a>
     </div>
     <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-4">{company}</p>
     
     <div className="flex items-center justify-between mt-4 pt-4 border-t border-zinc-100 dark:border-white/5">
-      <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-white/5 px-2 py-1 rounded">{budget}</span>
+      <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-white/5 px-2 py-1 rounded">{budget || 'N/A'}</span>
       <span className="text-[10px] text-zinc-400 font-medium">{date}</span>
     </div>
   </div>
 );
 
+const fetchKanbanData = async () => {
+  const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/opportunities/kanban`);
+  return data;
+};
+
 const Saved = () => {
+  const { data = { saved: [], applied: [], interviewing: [] }, isLoading, isError } = useQuery({
+    queryKey: ['kanban'],
+    queryFn: fetchKanbanData
+  });
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
   return (
     <div className="space-y-8 h-full flex flex-col">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -57,41 +73,69 @@ const Saved = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-        <KanbanColumn title="Saved" count={2} icon={Bookmark} color="blue">
-          <JobCard 
-            title="Senior React Native Developer" 
-            company="Y Combinator Startup" 
-            budget="$60-80/hr" 
-            date="Added 2d ago"
-          />
-          <JobCard 
-            title="Fullstack Web3 Engineer" 
-            company="DeFi Protocol" 
-            budget="$10,000" 
-            date="Added 5d ago"
-          />
-        </KanbanColumn>
-        
-        <KanbanColumn title="Applied" count={1} icon={Send} color="purple">
-          <JobCard 
-            title="Frontend Architect for AI App" 
-            company="OpenAI Wrapper" 
-            budget="$5,000" 
-            date="Applied yesterday"
-          />
-        </KanbanColumn>
-        
-        <KanbanColumn title="Interviewing" count={0} icon={Users} color="emerald">
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-zinc-200 dark:border-white/5 rounded-xl">
-            <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mb-3">
-              <Users size={20} className="text-emerald-500" />
-            </div>
-            <p className="text-sm font-semibold text-zinc-900 dark:text-white">No active interviews</p>
-            <p className="text-xs text-zinc-500 mt-1">Move a job here once you schedule a call.</p>
-          </div>
-        </KanbanColumn>
-      </div>
+      {isLoading ? (
+        <div className="flex-1 flex flex-col items-center justify-center">
+          <Loader2 size={40} className="animate-spin text-blue-500 mb-4" />
+          <p className="text-zinc-500 font-medium">Loading pipeline...</p>
+        </div>
+      ) : isError ? (
+        <div className="flex-1 flex items-center justify-center text-red-500 font-medium">
+          Failed to load kanban data.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+          <KanbanColumn title="Saved" count={data.saved.length} icon={Bookmark} color="blue">
+            {data.saved.length > 0 ? data.saved.map(op => (
+              <JobCard 
+                key={op._id}
+                title={op.title}
+                company={op.company || op.sourceName}
+                budget={op.budget}
+                date={formatDate(op.createdAt)}
+                url={op.originalUrl}
+              />
+            )) : (
+              <p className="text-center text-zinc-500 text-sm pt-8">No saved jobs.</p>
+            )}
+          </KanbanColumn>
+          
+          <KanbanColumn title="Applied" count={data.applied.length} icon={Send} color="purple">
+            {data.applied.length > 0 ? data.applied.map(op => (
+              <JobCard 
+                key={op._id}
+                title={op.title}
+                company={op.company || op.sourceName}
+                budget={op.budget}
+                date={formatDate(op.createdAt)}
+                url={op.originalUrl}
+              />
+            )) : (
+              <p className="text-center text-zinc-500 text-sm pt-8">No applications sent.</p>
+            )}
+          </KanbanColumn>
+          
+          <KanbanColumn title="Interviewing" count={data.interviewing.length} icon={Users} color="emerald">
+            {data.interviewing.length > 0 ? data.interviewing.map(op => (
+              <JobCard 
+                key={op._id}
+                title={op.title}
+                company={op.company || op.sourceName}
+                budget={op.budget}
+                date={formatDate(op.createdAt)}
+                url={op.originalUrl}
+              />
+            )) : (
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-zinc-200 dark:border-white/5 rounded-xl">
+                <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mb-3">
+                  <Users size={20} className="text-emerald-500" />
+                </div>
+                <p className="text-sm font-semibold text-zinc-900 dark:text-white">No active interviews</p>
+                <p className="text-xs text-zinc-500 mt-1">Move a job here once you schedule a call.</p>
+              </div>
+            )}
+          </KanbanColumn>
+        </div>
+      )}
     </div>
   );
 };

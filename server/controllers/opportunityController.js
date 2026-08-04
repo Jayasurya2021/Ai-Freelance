@@ -154,6 +154,27 @@ exports.getDashboardStats = async (req, res) => {
     }
 };
 
+// Get Kanban Board Data
+exports.getKanbanBoard = async (req, res) => {
+    try {
+        const opportunities = await Opportunity.find({
+            $or: [
+                { saved: true },
+                { status: { $in: ['Applied', 'Interviewing'] } }
+            ]
+        }).sort({ createdAt: -1 }).select('-embedding');
+
+        const saved = opportunities.filter(op => op.saved && op.status !== 'Applied' && op.status !== 'Interviewing');
+        const applied = opportunities.filter(op => op.status === 'Applied');
+        const interviewing = opportunities.filter(op => op.status === 'Interviewing');
+
+        res.status(200).json({ saved, applied, interviewing });
+    } catch (error) {
+        console.error("Kanban error:", error);
+        res.status(500).json({ message: 'Server error fetching kanban data' });
+    }
+};
+
 // Generate Proposal
 exports.generateProposal = async (req, res) => {
     try {

@@ -8,6 +8,9 @@ router.get('/', opportunityController.getOpportunities);
 // GET /api/opportunities/stats
 router.get('/stats', opportunityController.getDashboardStats);
 
+// GET /api/opportunities/kanban
+router.get('/kanban', opportunityController.getKanbanBoard);
+
 // POST /api/opportunities/ingest (Admin/Internal use)
 router.post('/ingest', opportunityController.triggerIngestion);
 
