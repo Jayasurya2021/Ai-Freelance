@@ -3,14 +3,53 @@ const Profile = require('../models/Profile');
 const ingestionService = require('../services/ingestionService');
 const aiService = require('../services/aiService');
 
+// Helper for in-memory cosine similarity calculation
+const cosineSimilarity = (vecA, vecB) => {
+    let dotProduct = 0;
+    let normA = 0;
+    let normB = 0;
+    for (let i = 0; i < vecA.length; i++) {
+        dotProduct += vecA[i] * vecB[i];
+        normA += vecA[i] * vecA[i];
+        normB += vecB[i] * vecB[i];
+    }
+    if (normA === 0 || normB === 0) return 0;
+    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+};
+
 // Fetch feed with pagination and optional semantic search
 exports.getOpportunities = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
+        const searchQuery = req.query.q;
 
-        // Base query (we will add vector search here later if a query is provided)
+        if (searchQuery) {
+            // Semantic Search Flow
+            const queryEmbedding = await aiService.generateEmbedding(searchQuery);
+            
+            // Get all opportunities that have an embedding
+            const allOps = await Opportunity.find({ embedding: { $exists: true, $ne: [] } });
+            
+            // Calculate similarity and sort
+            const scoredOps = allOps.map(op => {
+                const sim = cosineSimilarity(queryEmbedding, op.embedding);
+                return { ...op.toObject(), searchScore: sim };
+            }).sort((a, b) => b.searchScore - a.searchScore);
+            
+            // Paginate
+            const paginated = scoredOps.slice(skip, skip + limit);
+            paginated.forEach(op => delete op.embedding);
+            
+            return res.status(200).json({
+                opportunities: paginated,
+                totalPages: Math.ceil(scoredOps.length / limit),
+                currentPage: page
+            });
+        }
+
+        // Standard Flow
         const query = {};
 
         const opportunities = await Opportunity.find(query)

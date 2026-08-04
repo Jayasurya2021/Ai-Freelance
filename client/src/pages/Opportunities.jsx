@@ -4,8 +4,12 @@ import axios from 'axios';
 import { Inbox, ExternalLink, ShieldCheck, Zap, Search, Loader2, FileText, CheckCircle2, Copy, X, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const fetchOpportunities = async () => {
-  const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/opportunities`);
+const fetchOpportunities = async ({ queryKey }) => {
+  const [_key, searchQuery] = queryKey;
+  const url = searchQuery 
+    ? `${import.meta.env.VITE_API_URL}/api/opportunities?q=${encodeURIComponent(searchQuery)}`
+    : `${import.meta.env.VITE_API_URL}/api/opportunities`;
+  const { data } = await axios.get(url);
   return data.opportunities || [];
 };
 
@@ -25,8 +29,11 @@ const EmptyState = () => (
 
 const Opportunities = () => {
   const { user } = useAuth();
+  const [semanticQuery, setSemanticQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+
   const { data: opportunities = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ['opportunities_full'],
+    queryKey: ['opportunities_full', semanticQuery],
     queryFn: fetchOpportunities
   });
   const [scanUrl, setScanUrl] = useState('');
@@ -93,6 +100,26 @@ const Opportunities = () => {
           <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">Your AI-curated freelance opportunities from real sources.</p>
         </div>
       </div>
+
+      {/* Semantic Search Bar */}
+      <form onSubmit={(e) => { e.preventDefault(); setSemanticQuery(searchInput); }} className="relative flex items-center">
+        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+          <Search size={20} className="text-zinc-400" />
+        </div>
+        <input
+          type="text"
+          placeholder="Semantic Search (e.g. 'Looking for easy react projects paying over $50')"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-2xl pl-12 pr-32 py-4 text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-zinc-400 shadow-sm text-base"
+        />
+        <button 
+          type="submit"
+          className="absolute right-2 top-2 bottom-2 bg-blue-500 text-white px-6 rounded-xl font-bold hover:bg-blue-600 transition-colors active:scale-95 flex items-center gap-2"
+        >
+          Search
+        </button>
+      </form>
 
       {/* Quick Scan Section */}
       <div className="p-1 rounded-2xl bg-gradient-to-r from-emerald-500/20 via-blue-500/20 to-emerald-500/20">
