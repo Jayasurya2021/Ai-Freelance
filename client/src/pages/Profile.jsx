@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { User, Code2, Briefcase, GitBranch, Globe, DollarSign, PenTool, CheckCircle2, Zap, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import AISettings from './AISettings';
+import SourceManager from './SourceManager';
 
 const TagInput = ({ name, value, onChange, placeholder }) => {
   const [input, setInput] = useState('');
@@ -502,7 +504,33 @@ const Profile = () => {
               )}
             </button>
           </div>
+          </div>
         </form>
+      </div>
+
+      {/* Embedded Settings Modules */}
+      <div className="mt-16 pt-8 border-t border-zinc-200 dark:border-white/10 space-y-16">
+        <div>
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+              <Zap className="text-emerald-500" size={24} />
+              AI Engine Settings
+            </h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm">Configure your AI providers and models.</p>
+          </div>
+          <AISettings />
+        </div>
+
+        <div>
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+              <Globe className="text-emerald-500" size={24} />
+              Data Source Manager
+            </h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm">Manage the pipelines and RSS feeds your AI actively monitors.</p>
+          </div>
+          <SourceManager />
+        </div>
       </div>
     </div>
   );

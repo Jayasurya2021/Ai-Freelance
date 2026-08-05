@@ -94,10 +94,7 @@ const AISettings = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-xl rounded-2xl dark:bg-slate-800 text-slate-800 dark:text-slate-200">
-            <h1 className="text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600">
-                AI Provider Settings
-            </h1>
+        <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-6 dark:bg-black/20 dark:border-white/10">
 
             {status.message && (
                 <div className={`p-4 mb-6 rounded-lg flex items-center gap-3 ${status.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

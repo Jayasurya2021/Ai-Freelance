@@ -71,8 +71,7 @@ const SourceManager = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto mt-10 p-6 bg-white dark:bg-slate-800 rounded-2xl shadow">
-            <h1 className="text-3xl font-bold mb-8">Source Manager</h1>
+        <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-6 dark:bg-black/20 dark:border-white/10">
 
             <div className="mb-10 bg-slate-50 dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
                 <h2 className="text-xl font-semibold mb-4">{editingId ? 'Edit Source' : 'Add New Source'}</h2>
