@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { Target, Zap, Activity, TrendingUp, Inbox, Bookmark, BookmarkCheck, ExternalLink, Mail, MessageSquare } from 'lucide-react';
+import { Target, Zap, Activity, TrendingUp, Inbox, Bookmark, BookmarkCheck, ExternalLink, Mail, MessageSquare, Sparkles, Briefcase, Award } from 'lucide-react';
+import { useProfileMode } from '../context/ProfileContext';
 
-const fetchOpportunities = async () => {
-  const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/opportunities?limit=5`);
+const fetchOpportunities = async (mode) => {
+  const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/opportunities?limit=5&mode=${mode}`);
   return data.opportunities || [];
 };
 
-const fetchStats = async () => {
-  const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/opportunities/stats`);
+const fetchStats = async (mode) => {
+  const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/opportunities/stats?mode=${mode}`);
   return data;
 };
 

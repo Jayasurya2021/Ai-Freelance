@@ -80,3 +80,19 @@ exports.getDailyBrief = async (req, res) => {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
+
+exports.recordLearningFeedback = async (req, res) => {
+    const { opportunityId, action, profileMode } = req.body;
+    // Action could be 'liked', 'ignored', 'applied'
+    
+    try {
+        // In a real DB, we'd have a LearningLog collection tracking this action per user & mode.
+        // For now, we stub a success response. The Discovery Engine's AI Expansion will query these 
+        // to adjust future semantic search logic.
+        console.log(`[AI LEARNING] User ${req.user.id} marked ${opportunityId} as ${action} in ${profileMode} mode.`);
+        
+        res.json({ success: true, message: "Feedback recorded for AI optimization." });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};

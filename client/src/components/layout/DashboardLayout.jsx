@@ -62,7 +62,7 @@ const DashboardLayout = () => {
             
             {/* Logo & Desktop Nav */}
             <div className="flex">
-              <div className="flex-shrink-0 flex items-center gap-4 mr-8">
+              <div className="flex-shrink-0 flex items-center gap-6 mr-8">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center">
                        <Search className="text-white" size={18} />
@@ -74,19 +74,25 @@ const DashboardLayout = () => {
                     </div>
                 </div>
                 
-                {/* Profile Switcher */}
-                <div className="hidden md:flex bg-zinc-100 p-1 rounded-lg border border-zinc-200">
+                {/* Profile Switcher (Hover to expand) */}
+                <div className="hidden md:flex bg-zinc-100 p-1 rounded-lg border border-zinc-200 group relative">
                     <button 
                         onClick={() => setProfileMode('freelance')}
-                        className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${profileMode === 'freelance' ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+                        className={`flex items-center justify-center p-1.5 text-sm font-medium rounded-md transition-all duration-300 ${profileMode === 'freelance' ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700'}`}
                     >
-                        🚀 Freelance
+                        <span className="text-base leading-none">🚀</span>
+                        <span className="overflow-hidden whitespace-nowrap transition-all duration-300 max-w-0 opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-2">
+                            Freelance
+                        </span>
                     </button>
                     <button 
                         onClick={() => setProfileMode('job')}
-                        className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${profileMode === 'job' ? 'bg-white shadow-sm text-purple-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+                        className={`flex items-center justify-center p-1.5 text-sm font-medium rounded-md transition-all duration-300 ${profileMode === 'job' ? 'bg-white shadow-sm text-purple-600' : 'text-zinc-500 hover:text-zinc-700'}`}
                     >
-                        💼 Job Search
+                        <span className="text-base leading-none">💼</span>
+                        <span className="overflow-hidden whitespace-nowrap transition-all duration-300 max-w-0 opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-2">
+                            Job Search
+                        </span>
                     </button>
                 </div>
               </div>

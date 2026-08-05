@@ -34,16 +34,30 @@ Your job is to return a JSON object with the following structure:
 Ensure that you NEVER return just a number. Always explain why using the strengths and weaknesses fields. Ensure the output is strictly valid JSON without any markdown formatting wrappers or extra text.`;
 };
 
-exports.buildUserContext = (textToAnalyze, userProfile) => {
-    const profileData = JSON.stringify({
-        skills: userProfile.skills,
-        experience: userProfile.experience,
-        projects: userProfile.projects || [],
-        preferredTechnologies: userProfile.preferredTechnologies || [],
-        preferredBudget: userProfile.preferredBudget || '',
-        preferredCountries: userProfile.preferredCountries || [],
-        preferredCategories: userProfile.preferredCategories || []
-    }, null, 2);
+exports.buildUserContext = (textToAnalyze, userProfile, profileMode = 'freelance') => {
+    // Select the correct sub-profile based on mode
+    const activeSubProfile = profileMode === 'freelance' 
+        ? userProfile.freelanceProfile || userProfile 
+        : userProfile.jobProfile || userProfile;
 
-    return `USER PROFILE:\n${profileData}\n\nOPPORTUNITY TEXT:\n${textToAnalyze}`;
+    return `
+You are analyzing an opportunity in ${profileMode.toUpperCase()} mode.
+Do not cross-contaminate job and freelance criteria.
+
+USER PROFILE (${profileMode.toUpperCase()}):
+Skills: ${activeSubProfile.skills?.join(', ') || 'None specified'}
+Experience: ${activeSubProfile.experience || 'Not specified'}
+Preferred Technologies: ${activeSubProfile.preferredTechnologies?.join(', ') || 'None specified'}
+
+${profileMode === 'freelance' ? `
+Hourly Rate: $${activeSubProfile.hourlyRate}
+Client Preferences: ${activeSubProfile.preferredIndustries?.join(', ')}
+` : `
+Expected Salary: $${activeSubProfile.expectedSalary}
+Remote Preference: ${activeSubProfile.remotePreference ? 'Yes' : 'No'}
+`}
+
+OPPORTUNITY TEXT:
+${textToAnalyze}
+`;
 };
