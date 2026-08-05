@@ -11,7 +11,7 @@ exports.getSettings = async (req, res) => {
         // Just send a flag if they exist
         const safeSettings = {
             provider: settings.provider,
-            geminiModel: settings.geminiModel,
+            geminiModel: settings.geminiModel === 'gemini-2.5-flash' ? 'gemini-1.5-flash' : settings.geminiModel,
             openaiModel: settings.openaiModel,
             hasGeminiKey: !!settings.geminiKey,
             hasOpenaiKey: !!settings.openaiKey,
@@ -33,7 +33,9 @@ exports.saveSettings = async (req, res) => {
         }
         
         if (provider) settings.provider = provider;
-        if (geminiModel) settings.geminiModel = geminiModel;
+        if (geminiModel) {
+            settings.geminiModel = geminiModel === 'gemini-2.5-flash' ? 'gemini-1.5-flash' : geminiModel;
+        }
         if (openaiModel) settings.openaiModel = openaiModel;
         
         // Only update keys if new ones were provided
@@ -66,7 +68,7 @@ exports.testConnection = async (req, res) => {
         
         // Try Gemini
         if (geminiKey) {
-            const geminiResult = await aiProvider.testConnection('gemini', geminiKey, 'gemini-2.5-flash');
+            const geminiResult = await aiProvider.testConnection('gemini', geminiKey, 'gemini-1.5-flash');
             if (geminiResult.status === 'error') {
                 errorMessages.push(`Gemini Failed: ${geminiResult.message}`);
             } else {
