@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { LayoutDashboard, Briefcase, Bookmark, User, Menu, X, Search, LogOut, Bell, Settings, Activity, Globe, Rss, List, Eye } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Bookmark, User, Menu, X, Search, LogOut, Bell, Settings, Activity, Globe, Rss, List, Eye, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useProfileMode } from '../../context/ProfileContext';
@@ -105,14 +105,16 @@ const DashboardLayout = () => {
                     <Link
                       key={item.name}
                       to={item.path}
-                      className={`inline-flex items-center gap-2 px-1 pt-1 text-sm font-medium border-b-2 transition-colors ${
+                      className={`inline-flex items-center gap-2 px-1 pt-1 pb-4 mt-4 text-sm font-medium border-b-2 transition-colors ${
                         isActive 
-                          ? 'border-zinc-900 text-zinc-900' 
-                          : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300'
+                          ? 'border-indigo-600 text-indigo-600' 
+                          : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                       }`}
                     >
-                      <Icon size={16} />
-                      {item.name}
+                      <div className={`p-1.5 rounded-md flex items-center justify-center transition-colors ${isActive ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400'}`}>
+                         <Icon size={16} />
+                      </div>
+                      <span className={isActive ? 'font-semibold' : ''}>{item.name}</span>
                     </Link>
                   );
                 })}
@@ -120,17 +122,23 @@ const DashboardLayout = () => {
             </div>
 
             {/* Right side icons & Profile */}
-            <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-4">
+            <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-6">
               
+              <button className="text-slate-400 hover:text-slate-600 transition-colors">
+                 <Search size={18} />
+              </button>
+
               {/* Notification Bell */}
-              <div className="relative">
+              <div className="relative flex items-center">
                 <button 
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className="p-2 rounded-full hover:bg-zinc-100 text-zinc-500 transition-colors relative"
+                  className="text-slate-400 hover:text-slate-600 transition-colors relative"
                 >
                   <Bell size={18} />
                   {unreadCount > 0 && (
-                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-[9px] font-bold text-white border-2 border-white">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
                   )}
                 </button>
 
@@ -168,20 +176,13 @@ const DashboardLayout = () => {
               </div>
 
               {/* Profile Menu Link */}
-              <Link to="/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity pl-4 border-l border-zinc-200">
-                <div className="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center">
-                  <User size={16} className="text-zinc-600" />
+              <Link to="/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-teal-100 flex items-center justify-center text-slate-700 font-semibold text-sm">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'S'}
                 </div>
-                {user && <span className="text-sm font-medium text-zinc-700">{user.name}</span>}
+                {user && <span className="text-sm font-medium text-slate-700 hidden lg:block">{user.name}</span>}
+                <ChevronDown size={14} className="text-slate-400 hidden lg:block" />
               </Link>
-
-              <button
-                onClick={logout}
-                className="p-2 text-zinc-400 hover:text-red-500 transition-colors ml-2 bg-zinc-50 hover:bg-red-50 rounded-lg"
-                title="Logout"
-              >
-                <LogOut size={16} />
-              </button>
             </div>
 
             {/* Mobile menu button */}
