@@ -216,6 +216,7 @@ const Profile = () => {
                 <div className="p-4 rounded-xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-100 dark:border-white/5">
                   {renderPills(profile.preferredTechStack, "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20")}
                 </div>
+              </div>
             </div>
         </div>
       </div>
@@ -391,7 +392,6 @@ const Profile = () => {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Add Project
               </button>
-            </div>
             </div>
           </div>
 
