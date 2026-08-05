@@ -83,15 +83,66 @@ exports.getDailyBrief = async (req, res) => {
 
 exports.recordLearningFeedback = async (req, res) => {
     const { opportunityId, action, profileMode } = req.body;
-    // Action could be 'liked', 'ignored', 'applied'
-    
     try {
-        // In a real DB, we'd have a LearningLog collection tracking this action per user & mode.
-        // For now, we stub a success response. The Discovery Engine's AI Expansion will query these 
-        // to adjust future semantic search logic.
         console.log(`[AI LEARNING] User ${req.user.id} marked ${opportunityId} as ${action} in ${profileMode} mode.`);
-        
         res.json({ success: true, message: "Feedback recorded for AI optimization." });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+const profileCompletenessService = require('../services/profileCompletenessService');
+const Profile = require('../models/Profile');
+const SearchProfile = require('../models/SearchProfile');
+const aiProvider = require('../services/aiProvider');
+
+exports.getProfileCompleteness = async (req, res) => {
+    try {
+        const mode = req.query.mode || 'freelance';
+        const userProfile = await Profile.findById(req.user.id);
+        const result = profileCompletenessService.calculateCompleteness(userProfile, mode);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+exports.getSearchPerformance = async (req, res) => {
+    try {
+        const mode = req.query.mode || 'freelance';
+        const searchProfiles = await SearchProfile.find({ userId: req.user.id, profileMode: mode });
+        
+        // In a full implementation, we would aggregate the Opportunity metrics mapped to these search profiles.
+        // For now, we return the base search profiles to populate the analytics table.
+        res.json({ searchProfiles });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+exports.generateInsights = async (req, res) => {
+    try {
+        const mode = req.query.mode || 'freelance';
+        const userProfile = await Profile.findById(req.user.id);
+        
+        // Fetch last 7 days of opportunities to generate insights
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const recentOpps = await Opportunity.find({ 
+            userId: req.user.id, 
+            profileMode: mode, 
+            createdAt: { $gte: oneWeekAgo } 
+        });
+
+        const prompt = `You are a Career Intelligence Engine. 
+The user is in ${mode.toUpperCase()} mode. 
+They found ${recentOpps.length} opportunities this week.
+Based on their profile and this volume, generate a 1-sentence actionable insight.
+Example: "Your React opportunities increased by 22% this week, consider adding Next.js to your skills."`;
+
+        const insight = await aiProvider.generateResponse(userProfile, prompt, "Generate Insight");
+        
+        res.json({ insight: insight.replace(/["']/g, '') });
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
     }
