@@ -47,10 +47,8 @@ const DashboardLayout = () => {
     { name: 'Feed', path: '/feed', icon: List },
     { name: 'Analyzer', path: '/url-analyzer', icon: Globe },
     { name: 'Watchlist', path: '/watchlist', icon: Eye },
-    { name: 'Sources', path: '/sources', icon: Rss },
     { name: 'Monitoring', path: '/monitoring', icon: Activity },
     { name: 'Saved', path: '/saved', icon: Bookmark },
-    { name: 'AI Settings', path: '/ai-settings', icon: Settings },
   ];
 
   return (
