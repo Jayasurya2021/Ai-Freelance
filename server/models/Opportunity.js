@@ -31,27 +31,24 @@ const opportunitySchema = new mongoose.Schema({
     scamRisk: { type: String, default: 'Low' },
     urgency: { type: String, default: 'Normal' },
     
-    // New AI Recommendations
+    // AI Analysis (Phase 3+ additions)
     aiSummary: { type: String, default: '' },
-    recommendationLevel: { type: String, default: 'Skip' }, // Apply Immediately, Good Opportunity, Worth Considering, Low Priority, Skip
+    recommendationLevel: { type: String, default: '' },
     recommendationReason: { type: String, default: '' },
-    portfolioRecommendation: { type: String, default: '' },
-    
-    // Phase 3 Features
-    aiConfidenceScore: { type: String, default: 'Medium' }, // Very High, High, Medium, Low
+    aiConfidenceScore: { type: String, default: '' }, // Very High, High, Medium, Low
     strengths: { type: [String], default: [] },
     weaknesses: { type: [String], default: [] },
     estimatedProbabilityOfSuccess: { type: Number, default: 0 },
-    resumeRecommendation: { type: String, default: '' },
+    
+    // AI Asset Recommendations (Phase 6 additions)
+    recommendedResumeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Resume' },
+    recommendedPortfolioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Portfolio' },
     
     // Semantic Search Embedding
     embedding: { type: [Number], default: [] },
     
-    // User Interaction States
-    saved: { type: Boolean, default: false },
-    liked: { type: Boolean, default: false },
-    applied: { type: Boolean, default: false },
-    status: { type: String, default: 'New' } // New, Applied, Interview, Won, Rejected
+    // Status
+    status: { type: String, enum: ['new', 'saved', 'applied', 'ignored', 'won', 'lost', 'interviewing', 'rejected'], default: 'new' }
 }, {
     timestamps: true
 });

@@ -14,7 +14,8 @@ const profileSchema = new mongoose.Schema({
         preferredIndustries: { type: [String], default: [] },
         preferredProjectTypes: { type: [String], default: [] },
         preferredTechnologies: { type: [String], default: [] },
-        proposalTemplate: { type: String, default: '' }
+        proposalTemplate: { type: String, default: '' },
+        careerGoals: { type: [String], default: [] }
     },
     jobProfile: {
         skills: { type: [String], default: [] },
@@ -27,7 +28,8 @@ const profileSchema = new mongoose.Schema({
         preferredTechnologies: { type: [String], default: [] },
         preferredEmploymentType: { type: [String], default: ['Full-time'] },
         remotePreference: { type: Boolean, default: true },
-        relocation: { type: Boolean, default: false }
+        relocation: { type: Boolean, default: false },
+        careerGoals: { type: [String], default: [] }
     },
     // Global Settings
     notificationThreshold: { type: Number, default: 70 }
