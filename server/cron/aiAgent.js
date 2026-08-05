@@ -8,6 +8,7 @@ const SchedulerSettings = require('../models/SchedulerSettings');
 const collectorService = require('../services/collectorService');
 const duplicateDetectionService = require('../services/duplicateDetectionService');
 const matchingService = require('../services/matchingService');
+const discoveryService = require('../services/discoveryService');
 
 const runForUser = async (userId) => {
     const startTime = new Date();
@@ -23,6 +24,10 @@ const runForUser = async (userId) => {
         const settings = await SchedulerSettings.findOne({ userId }) || { minimumMatchScore: 70, enableMonitoring: true };
         if (!settings.enableMonitoring) return;
 
+        // Trigger Phase 4 AI Discovery Engine to proactively find new URLs and dump them into the Queue
+        await discoveryService.runDiscovery(userId, userProfile);
+
+        // Standard Phase 2 Monitoring Engine logic continues...
         const sources = await Source.find({ userId, status: 'active' });
         
         for (const source of sources) {
