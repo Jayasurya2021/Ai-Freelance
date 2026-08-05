@@ -15,7 +15,7 @@ const SourceManager = () => {
     const fetchSources = async () => {
         try {
             const token = localStorage.getItem('token');
-            const { data } = await axios.get('http://localhost:5000/api/sources', {
+            const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/sources`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setSources(data);
@@ -31,11 +31,11 @@ const SourceManager = () => {
         try {
             const token = localStorage.getItem('token');
             if (editingId) {
-                await axios.put(`http://localhost:5000/api/sources/${editingId}`, formData, {
+                await axios.put(`${import.meta.env.VITE_API_URL}/api/sources/${editingId}`, formData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             } else {
-                await axios.post('http://localhost:5000/api/sources', formData, {
+                await axios.post(`${import.meta.env.VITE_API_URL}/api/sources`, formData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             }
@@ -51,7 +51,7 @@ const SourceManager = () => {
         if (!window.confirm("Are you sure?")) return;
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/sources/${id}`, {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/sources/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchSources();

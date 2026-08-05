@@ -14,7 +14,8 @@ exports.getSettings = async (req, res) => {
             geminiModel: settings.geminiModel,
             openaiModel: settings.openaiModel,
             hasGeminiKey: !!settings.geminiKey,
-            hasOpenaiKey: !!settings.openaiKey
+            hasOpenaiKey: !!settings.openaiKey,
+            hasGroqKey: !!settings.groqKey
         };
         res.json(safeSettings);
     } catch (err) {
@@ -23,7 +24,7 @@ exports.getSettings = async (req, res) => {
 };
 
 exports.saveSettings = async (req, res) => {
-    const { provider, geminiKey, openaiKey, geminiModel, openaiModel } = req.body;
+    const { provider, geminiKey, openaiKey, groqKey, geminiModel, openaiModel } = req.body;
     
     try {
         let settings = await AISettings.findOne({ userId: req.user.id });
@@ -38,6 +39,7 @@ exports.saveSettings = async (req, res) => {
         // Only update keys if new ones were provided
         if (geminiKey) settings.geminiKey = cryptoService.encrypt(geminiKey);
         if (openaiKey) settings.openaiKey = cryptoService.encrypt(openaiKey);
+        if (groqKey) settings.groqKey = cryptoService.encrypt(groqKey);
         
         await settings.save();
         res.json({ message: "Settings saved successfully" });
@@ -47,13 +49,40 @@ exports.saveSettings = async (req, res) => {
 };
 
 exports.testConnection = async (req, res) => {
-    const { provider, apiKey, modelName } = req.body;
+    const { groqKey, geminiKey } = req.body;
     try {
-        const result = await aiProvider.testConnection(provider, apiKey, modelName);
-        if (result.status === 'error') {
-            return res.status(400).json({ message: "Connection Failed", details: result.message });
+        let successMessages = [];
+        let errorMessages = [];
+        
+        // Try Gemini
+        if (geminiKey) {
+            const geminiResult = await aiProvider.testConnection('gemini', geminiKey, 'gemini-2.5-flash');
+            if (geminiResult.status === 'error') {
+                errorMessages.push(`Gemini Failed: ${geminiResult.message}`);
+            } else {
+                successMessages.push("Gemini Connected!");
+            }
         }
-        res.json({ message: "Connected successfully!" });
+
+        // Try Groq
+        if (groqKey) {
+            const groqResult = await aiProvider.testConnection('groq', groqKey, 'llama3-8b-8192');
+            if (groqResult.status === 'error') {
+                errorMessages.push(`Groq Failed: ${groqResult.message}`);
+            } else {
+                successMessages.push("Groq Connected!");
+            }
+        }
+
+        if (successMessages.length === 0 && errorMessages.length === 0) {
+            return res.status(400).json({ message: "No keys provided to test." });
+        }
+        
+        if (errorMessages.length > 0) {
+            return res.status(400).json({ message: "Connection Test Failed", details: errorMessages.join(" | ") });
+        }
+
+        res.json({ message: successMessages.join(" | ") });
     } catch (err) {
         res.status(500).json({ message: "Test failed", details: err.message });
     }

@@ -5,6 +5,7 @@ import { User, Code2, Briefcase, Globe, DollarSign, CheckCircle2, Zap, X, Settin
 import { motion } from 'framer-motion';
 import AISettings from './AISettings';
 import SourceManager from './SourceManager';
+import ATSBuilder from '../components/profile/ATSBuilder';
 
 const TagInput = ({ name, value, onChange, placeholder }) => {
   const [input, setInput] = useState('');
@@ -254,8 +255,12 @@ const Profile = () => {
             </div>
             
             <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-5 md:p-6">
-                <h4 className="text-sm font-bold text-zinc-900 mb-2">Freelance Proposal Context</h4>
-                <textarea name="resumeText" value={freelanceProfile.resumeText} onChange={handleFreelanceChange} rows={5} placeholder="Paste your general pitch, background, and what makes you a great freelancer..." className="w-full p-4 border rounded-xl bg-zinc-50/50 border-zinc-200 text-sm outline-none focus:border-emerald-500 resize-none"></textarea>
+                <ATSBuilder 
+                  user={user} 
+                  activeProfileMode="freelance" 
+                  currentResumeText={freelanceProfile.resumeText} 
+                  onResumeExtracted={(text) => setFreelanceProfile({...freelanceProfile, resumeText: text})} 
+                />
             </div>
           </div>
         )}
@@ -307,9 +312,12 @@ const Profile = () => {
             </div>
 
             <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-5 md:p-6">
-                <h4 className="text-sm font-bold text-zinc-900 mb-2">Full Resume / CV Text</h4>
-                <p className="text-xs text-zinc-500 mb-4">Paste your full resume here. The AI will extract it to answer application questions.</p>
-                <textarea name="resumeText" value={jobProfile.resumeText} onChange={handleJobChange} rows={10} placeholder="Experience: Software Engineer at Tech Corp..." className="w-full p-4 border rounded-xl bg-zinc-50/50 border-zinc-200 text-sm outline-none focus:border-emerald-500 resize-none"></textarea>
+                <ATSBuilder 
+                  user={user} 
+                  activeProfileMode="job" 
+                  currentResumeText={jobProfile.resumeText} 
+                  onResumeExtracted={(text) => setJobProfile({...jobProfile, resumeText: text})} 
+                />
             </div>
           </div>
         )}

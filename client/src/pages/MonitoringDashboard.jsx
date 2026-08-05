@@ -15,8 +15,8 @@ const MonitoringDashboard = () => {
         try {
             const token = localStorage.getItem('token');
             const [settingsRes, logsRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/monitoring/settings', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('http://localhost:5000/api/monitoring/logs', { headers: { Authorization: `Bearer ${token}` } })
+                axios.get(`${import.meta.env.VITE_API_URL}/api/monitoring/settings`, { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get(`${import.meta.env.VITE_API_URL}/api/monitoring/logs`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
             setSettings(settingsRes.data);
             setLogs(logsRes.data);
@@ -29,7 +29,7 @@ const MonitoringDashboard = () => {
         setRunning(true);
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/api/monitoring/run', {}, {
+            await axios.post(`${import.meta.env.VITE_API_URL}/api/monitoring/run`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert('Monitoring run triggered in the background. Check back in a minute for logs.');
@@ -44,7 +44,7 @@ const MonitoringDashboard = () => {
         if (!settings) return;
         try {
             const token = localStorage.getItem('token');
-            const updated = await axios.post('http://localhost:5000/api/monitoring/settings', {
+            const updated = await axios.post(`${import.meta.env.VITE_API_URL}/api/monitoring/settings`, {
                 enableMonitoring: !settings.enableMonitoring
             }, { headers: { Authorization: `Bearer ${token}` } });
             setSettings(updated.data);

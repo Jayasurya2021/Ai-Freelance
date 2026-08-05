@@ -2,6 +2,7 @@ const AISettings = require('../models/AISettings');
 const cryptoService = require('./cryptoService');
 const geminiProvider = require('./providers/gemini');
 const openaiProvider = require('./providers/openai');
+const groqProvider = require('./providers/groq');
 
 exports.analyze = async (userId, systemPrompt, userPrompt) => {
     // Fetch user settings
@@ -20,6 +21,9 @@ exports.analyze = async (userId, systemPrompt, userPrompt) => {
         } else if (provider === 'openai') {
             apiKey = cryptoService.decrypt(settings.openaiKey) || process.env.OPENAI_API_KEY;
             modelName = settings.openaiModel || 'gpt-4o';
+        } else if (provider === 'groq') {
+            apiKey = cryptoService.decrypt(settings.groqKey) || process.env.GROQ_API_KEY;
+            modelName = settings.groqModel || 'llama3-8b-8192';
         }
     } else if (provider === 'openai') {
         apiKey = process.env.OPENAI_API_KEY;
@@ -34,6 +38,8 @@ exports.analyze = async (userId, systemPrompt, userPrompt) => {
         return await geminiProvider.analyze(apiKey, modelName, systemPrompt, userPrompt);
     } else if (provider === 'openai') {
         return await openaiProvider.analyze(apiKey, modelName, systemPrompt, userPrompt);
+    } else if (provider === 'groq') {
+        return await groqProvider.analyze(apiKey, modelName, systemPrompt, userPrompt);
     } else {
         throw new Error(`Unsupported AI Provider: ${provider}`);
     }
@@ -48,6 +54,8 @@ exports.testConnection = async (provider, apiKey, modelName) => {
             return await geminiProvider.analyze(apiKey, modelName, systemPrompt, userPrompt);
         } else if (provider === 'openai') {
             return await openaiProvider.analyze(apiKey, modelName, systemPrompt, userPrompt);
+        } else if (provider === 'groq') {
+            return await groqProvider.analyze(apiKey, modelName, systemPrompt, userPrompt);
         } else {
             throw new Error(`Unsupported AI Provider: ${provider}`);
         }

@@ -11,7 +11,7 @@ const OpportunityFeed = () => {
             try {
                 const token = localStorage.getItem('token');
                 // Reusing the existing opportunity route
-                const { data } = await axios.get('http://localhost:5000/api/opportunities', {
+                const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/opportunities`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setOpportunities(data);

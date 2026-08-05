@@ -5,6 +5,7 @@ const aiSettingsSchema = new mongoose.Schema({
     provider: { type: String, enum: ['gemini', 'openai'], default: 'gemini' },
     geminiKey: { type: String, default: '' },
     openaiKey: { type: String, default: '' },
+    groqKey: { type: String, default: '' },
     geminiModel: { type: String, default: 'gemini-1.5-flash' },
     openaiModel: { type: String, default: 'gpt-4o' }
 }, {

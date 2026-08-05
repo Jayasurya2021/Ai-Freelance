@@ -1,0 +1,117 @@
+const Profile = require('../models/Profile');
+const aiService = require('../services/aiService');
+const pdfParse = require('pdf-parse');
+const mammoth = require('mammoth');
+
+exports.uploadResume = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const { userId, mode } = req.body;
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        const profileMode = mode || 'freelance'; // 'freelance' or 'job'
+        let extractedText = '';
+        const fileExtension = req.file.originalname.split('.').pop().toLowerCase();
+
+        // 1. Extract Text based on file type
+        if (fileExtension === 'pdf') {
+            const data = await pdfParse(req.file.buffer);
+            extractedText = data.text;
+        } else if (fileExtension === 'doc' || fileExtension === 'docx') {
+            const data = await mammoth.extractRawText({ buffer: req.file.buffer });
+            extractedText = data.value;
+        } else {
+            return res.status(400).json({ message: 'Unsupported file type. Please upload a PDF or DOCX.' });
+        }
+
+        if (!extractedText || extractedText.trim() === '') {
+            return res.status(400).json({ message: 'Could not extract any text from the document.' });
+        }
+
+        // 2. Save text to profile
+        const userProfile = await Profile.findById(userId);
+        if (!userProfile) {
+            return res.status(404).json({ message: 'Profile not found' });
+        }
+
+        if (profileMode === 'freelance') {
+            userProfile.freelanceProfile.resumeText = extractedText;
+        } else {
+            userProfile.jobProfile.resumeText = extractedText;
+        }
+
+        await userProfile.save();
+
+        res.status(200).json({ 
+            message: 'Resume parsed and saved successfully',
+            extractedText 
+        });
+
+    } catch (error) {
+        console.error('Upload resume error:', error);
+        res.status(500).json({ message: 'Server error during resume upload' });
+    }
+};
+
+exports.checkAts = async (req, res) => {
+    try {
+        const { userId, mode, jobDescription } = req.body;
+        
+        if (!jobDescription || !userId) {
+            return res.status(400).json({ message: 'Job Description and User ID are required.' });
+        }
+
+        const userProfile = await Profile.findById(userId);
+        if (!userProfile) {
+            return res.status(404).json({ message: 'Profile not found' });
+        }
+
+        const profileMode = mode || 'freelance';
+        const profile = profileMode === 'freelance' ? userProfile.freelanceProfile : userProfile.jobProfile;
+        
+        if (!profile || !profile.resumeText) {
+            return res.status(400).json({ message: 'No resume uploaded for this profile mode.' });
+        }
+
+        const result = await aiService.checkAtsMatch(profile.resumeText, jobDescription);
+        res.status(200).json(result);
+
+    } catch (error) {
+        console.error('Check ATS error:', error);
+        res.status(500).json({ message: 'Server error checking ATS score.' });
+    }
+};
+
+exports.generateTailoredResume = async (req, res) => {
+    try {
+        const { userId, mode, jobDescription } = req.body;
+        
+        if (!jobDescription || !userId) {
+            return res.status(400).json({ message: 'Job Description and User ID are required.' });
+        }
+
+        const userProfile = await Profile.findById(userId);
+        if (!userProfile) {
+            return res.status(404).json({ message: 'Profile not found' });
+        }
+
+        const profileMode = mode || 'freelance';
+        const profile = profileMode === 'freelance' ? userProfile.freelanceProfile : userProfile.jobProfile;
+        
+        if (!profile || !profile.resumeText) {
+            return res.status(400).json({ message: 'No base resume uploaded for this profile mode. Please upload one first.' });
+        }
+
+        const tailoredResume = await aiService.generateTailoredResume(profile.resumeText, jobDescription, profileMode);
+        res.status(200).json({ tailoredResume });
+
+    } catch (error) {
+        console.error('Tailor resume error:', error);
+        res.status(500).json({ message: 'Server error generating tailored resume.' });
+    }
+};

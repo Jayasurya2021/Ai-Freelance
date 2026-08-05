@@ -141,3 +141,69 @@ exports.generateProposal = async (opportunity, userProfile) => {
         throw error;
     }
 };
+
+/**
+ * Checks ATS score of a resume against a job description.
+ */
+exports.checkAtsMatch = async (resumeText, jobDescription) => {
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash", generationConfig: { responseMimeType: "application/json" } });
+        
+        const prompt = `
+        You are an expert ATS (Applicant Tracking System) analyzer.
+        Compare the following Resume against the Job Description.
+        
+        Resume:
+        """${resumeText}"""
+        
+        Job Description:
+        """${jobDescription}"""
+        
+        Analyze the match and return a JSON object with this exact schema:
+        {
+            "score": number (0-100),
+            "matchingKeywords": [string, string],
+            "missingKeywords": [string, string],
+            "improvementTips": [string, string]
+        }
+        `;
+        
+        const result = await model.generateContent(prompt);
+        return JSON.parse(result.response.text());
+    } catch (error) {
+        console.error("ATS Check Error:", error);
+        throw error;
+    }
+};
+
+/**
+ * Generates a tailored resume based on a base resume and a job description.
+ */
+exports.generateTailoredResume = async (baseResumeText, jobDescription, mode) => {
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        
+        const prompt = `
+        You are an expert ${mode === 'freelance' ? 'Freelance Profile Optimizer' : 'Executive Resume Writer'}.
+        Your goal is to rewrite the provided Base Resume to perfectly align with the target Job Description to maximize ATS score and recruiter interest, without lying or inventing experience.
+        
+        Base Resume:
+        """${baseResumeText}"""
+        
+        Target Job Description:
+        """${jobDescription}"""
+        
+        Instructions:
+        1. Incorporate key terminology and keywords from the Job Description into the professional summary and bullet points.
+        2. Highlight the most relevant experience and skills that match the job.
+        3. Rephrase bullets to be action-oriented and results-driven.
+        4. Output ONLY the tailored resume content formatted nicely in Markdown (with headers, bullet points). Do not include any introductory remarks.
+        `;
+        
+        const result = await model.generateContent(prompt);
+        return result.response.text();
+    } catch (error) {
+        console.error("Resume Generation Error:", error);
+        throw error;
+    }
+};
