@@ -30,6 +30,7 @@ const analyzerRoutes = require('./routes/analyzerRoutes');
 const sourceRoutes = require('./routes/sourceRoutes');
 const monitoringRoutes = require('./routes/monitoringRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
@@ -41,6 +42,7 @@ app.use('/api/analyzer', analyzerRoutes);
 app.use('/api/sources', sourceRoutes);
 app.use('/api/monitoring', monitoringRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Connect to MongoDB
 const connectDB = async () => {

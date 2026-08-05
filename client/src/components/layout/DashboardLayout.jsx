@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { LayoutDashboard, Briefcase, Bookmark, User, Menu, X, Search, LogOut, Bell, Settings, Activity, Globe, Rss, List } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Bookmark, User, Menu, X, Search, LogOut, Bell, Settings, Activity, Globe, Rss, List, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 
@@ -44,6 +44,7 @@ const DashboardLayout = () => {
     { name: 'Overview', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Feed', path: '/feed', icon: List },
     { name: 'Analyzer', path: '/url-analyzer', icon: Globe },
+    { name: 'Watchlist', path: '/watchlist', icon: Eye },
     { name: 'Sources', path: '/sources', icon: Rss },
     { name: 'Monitoring', path: '/monitoring', icon: Activity },
     { name: 'Saved', path: '/saved', icon: Bookmark },

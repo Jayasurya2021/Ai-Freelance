@@ -22,11 +22,16 @@ Your job is to return a JSON object with the following structure:
     "aiSummary": "A short summary of why this is or isn't a good fit (2-3 sentences max)",
     "recommendationLevel": "Apply Immediately | Good Opportunity | Worth Considering | Low Priority | Skip",
     "recommendationReason": "A short explanation of the recommendation",
-    "portfolioRecommendation": "Which project from the user's profile to showcase",
-    "proposalRecommendation": "For freelance: questions to ask or proposal strategy. For job: resume strategy."
+    "portfolioRecommendation": "Specific title of the portfolio project to showcase, if any",
+    "proposalRecommendation": "Brief bullet-point strategy on how to win this",
+    "scamRisk": "Low / Medium / High",
+    "aiConfidenceScore": "Very High / High / Medium / Low",
+    "strengths": ["Reason 1", "Reason 2"],
+    "weaknesses": ["Missing skill X", "Lack of experience Y"],
+    "estimatedProbabilityOfSuccess": number
 }
 
-Ensure the output is strictly valid JSON without any markdown formatting wrappers or extra text.`;
+Ensure that you NEVER return just a number. Always explain why using the strengths and weaknesses fields. Ensure the output is strictly valid JSON without any markdown formatting wrappers or extra text.`;
 };
 
 exports.buildUserContext = (textToAnalyze, userProfile) => {
