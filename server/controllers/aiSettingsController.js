@@ -49,8 +49,18 @@ exports.saveSettings = async (req, res) => {
 };
 
 exports.testConnection = async (req, res) => {
-    const { groqKey, geminiKey } = req.body;
+    let { groqKey, geminiKey } = req.body;
     try {
+        const settings = await AISettings.findOne({ userId: req.user.id });
+        
+        // Use saved keys if not provided in request
+        if (!geminiKey && settings?.geminiKey) {
+            geminiKey = cryptoService.decrypt(settings.geminiKey);
+        }
+        if (!groqKey && settings?.groqKey) {
+            groqKey = cryptoService.decrypt(settings.groqKey);
+        }
+
         let successMessages = [];
         let errorMessages = [];
         

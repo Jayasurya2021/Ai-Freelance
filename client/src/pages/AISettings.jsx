@@ -74,9 +74,8 @@ const AISettings = () => {
         try {
             const token = localStorage.getItem('token');
             const payload = {
-                provider: 'gemini', // Test Gemini by default since Groq isn't fully supported in backend test route yet
-                apiKey: settings.geminiKey === '********' ? undefined : settings.geminiKey,
-                modelName: 'gemini-2.5-flash'
+                geminiKey: settings.geminiKey === '********' ? undefined : settings.geminiKey,
+                groqKey: settings.groqKey === '********' ? undefined : settings.groqKey
             };
 
             await axios.post(`${import.meta.env.VITE_API_URL}/api/settings/ai/test`, payload, {
