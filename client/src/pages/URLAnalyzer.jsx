@@ -31,36 +31,39 @@ const URLAnalyzer = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto mt-10 p-4">
-            <div className="text-center mb-10">
-                <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-4">
-                    AI URL Analyzer
-                </h1>
-                <p className="text-slate-600 dark:text-slate-400 text-lg">
-                    Paste any job or freelance opportunity URL below to instantly see your match score and recommendations.
-                </p>
+        <div className="max-w-4xl mx-auto space-y-8">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white tracking-tight">AI URL Analyzer</h1>
+                    <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">
+                        Paste any job or freelance opportunity URL below to instantly see your match score and recommendations.
+                    </p>
+                </div>
             </div>
 
-            <form onSubmit={handleAnalyze} className="max-w-3xl mx-auto mb-10">
-                <div className="relative flex items-center shadow-lg rounded-full overflow-hidden border-2 border-transparent focus-within:border-blue-500 transition-all bg-white dark:bg-slate-800">
-                    <div className="pl-6 text-slate-400">
-                        <Search size={24} />
+            <form onSubmit={handleAnalyze}>
+                <div className="bg-white dark:bg-white/[0.02] border border-zinc-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
+                    <div className="relative flex items-center bg-zinc-50/50 dark:bg-black/20 rounded-xl overflow-hidden border border-zinc-200 dark:border-white/10 focus-within:border-emerald-500 transition-all">
+                        <div className="pl-4 text-zinc-400">
+                            <Search size={20} />
+                        </div>
+                        <input 
+                            type="url" 
+                            value={url}
+                            onChange={(e) => setUrl(e.target.value)}
+                            placeholder="https://www.upwork.com/freelance-jobs/..."
+                            className="w-full p-4 pl-3 outline-none text-base bg-transparent text-zinc-900 dark:text-white"
+                            required
+                        />
+                        <button 
+                            type="submit" 
+                            disabled={loading}
+                            className="mr-2 px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-lg transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50"
+                        >
+                            {loading ? <><Loader2 className="animate-spin" size={16} /> Analyzing</> : 'Analyze'}
+                        </button>
                     </div>
-                    <input 
-                        type="url" 
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        placeholder="https://www.upwork.com/freelance-jobs/..."
-                        className="w-full p-5 pl-4 outline-none text-lg bg-transparent dark:text-white"
-                        required
-                    />
-                    <button 
-                        type="submit" 
-                        disabled={loading}
-                        className="px-8 py-5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg transition-colors flex items-center gap-2"
-                    >
-                        {loading ? <><Loader2 className="animate-spin" size={20} /> Analyzing</> : 'Analyze'}
-                    </button>
                 </div>
             </form>
 

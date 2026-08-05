@@ -12,14 +12,14 @@ const KanbanColumn = ({ title, icon: Icon, count, color, children }) => {
   
   return (
     <div className="flex flex-col h-full bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
-      <div className="p-4 md:p-5 bg-zinc-50 border-b border-zinc-200 flex items-center justify-between">
+      <div className="p-4 md:p-5 bg-zinc-50/50 border-b border-zinc-100 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className={`p-2 rounded-lg border ${colorMap[color]}`}>
             <Icon size={16} />
           </div>
           <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">{title}</h3>
         </div>
-        <span className="text-xs font-bold bg-zinc-200 text-zinc-600 px-2.5 py-1 rounded-md">{count}</span>
+        <span className="text-xs font-bold bg-white border border-zinc-200 text-zinc-600 px-2.5 py-1 rounded-md">{count}</span>
       </div>
       <div className="flex-1 p-4 space-y-4 overflow-y-auto min-h-[500px] bg-zinc-50/30">
         {children}
@@ -64,10 +64,10 @@ const Saved = () => {
     <div className="space-y-8 h-full flex flex-col">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 tracking-tight">Saved & Applied</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white tracking-tight">Saved & Applied</h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">Track your application pipeline and manage client communications.</p>
         </div>
-        <button className="flex items-center justify-center gap-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors shadow-sm active:scale-95">
+        <button className="flex items-center justify-center gap-2 bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-600 transition-colors shadow-sm active:scale-95">
           Add External Job
           <ExternalLink size={16} />
         </button>

@@ -29,9 +29,9 @@ const StatCard = ({ title, value, icon: Icon, trend, color = 'emerald' }) => {
   const classes = colorMap[color] || colorMap.emerald;
   
   return (
-    <div className="bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col justify-between min-h-[140px] shadow-sm">
+    <div className="bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col justify-between min-h-[140px] shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${classes}`}>
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${classes}`}>
           <Icon size={18} strokeWidth={2.5} />
         </div>
         <p className="text-sm font-semibold text-zinc-800">{title}</p>
@@ -56,7 +56,7 @@ const EmptyState = () => (
     <p className="text-zinc-500 text-sm mt-3 max-w-[250px] leading-relaxed">
       Jarvis hasn't found any real opportunities yet. Import a URL or wait for the RSS feed to sync.
     </p>
-    <button className="mt-6 border border-zinc-200 text-zinc-700 font-semibold text-sm px-5 py-2 rounded-lg hover:bg-zinc-50 transition-colors flex items-center gap-2">
+    <button className="mt-6 border border-zinc-200 text-zinc-700 font-semibold text-sm px-5 py-2.5 rounded-xl hover:bg-zinc-50 transition-colors flex items-center gap-2">
       Inspect a URL <ExternalLink size={14} />
     </button>
   </div>
@@ -112,32 +112,32 @@ const Dashboard = () => {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-semibold text-zinc-900 dark:text-white tracking-tight font-serif-heading">Overview</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white tracking-tight">Overview</h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">Here's a snapshot of your freelance pipeline.</p>
         </div>
-        <button className="flex items-center justify-center gap-2 bg-zinc-900 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-zinc-800 transition-all active:scale-95 shadow-sm">
+        <button className="flex items-center justify-center gap-2 bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-emerald-600 transition-all active:scale-95 shadow-sm">
           Run Analysis
           <Zap size={16} />
         </button>
       </div>
 
       {insightsData && insightsData.insight && (
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-5 border border-indigo-100 flex items-start gap-4">
-              <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600 mt-1">
+          <div className="bg-white rounded-2xl p-6 border border-zinc-200 shadow-sm flex items-start gap-4">
+              <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600 mt-1">
                   <Lightbulb size={20} />
               </div>
               <div>
-                  <h3 className="font-semibold text-indigo-900 mb-1">AI Daily Insight</h3>
-                  <p className="text-indigo-800 text-sm">{insightsData.insight}</p>
+                  <h3 className="font-bold text-zinc-900 mb-1">AI Daily Insight</h3>
+                  <p className="text-zinc-500 text-sm">{insightsData.insight}</p>
               </div>
           </div>
       )}
 
       {completenessData && (
-          <div className="bg-white rounded-xl shadow-sm border border-zinc-200 p-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6">
               <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold text-zinc-900">Profile Completeness</h3>
-                  <span className="text-lg font-bold text-indigo-600">{completenessData.percentage}%</span>
+                  <span className="text-lg font-bold text-emerald-600">{completenessData.percentage}%</span>
               </div>
               <div className="w-full bg-zinc-100 rounded-full h-2.5 mb-4">
                   <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: `${completenessData.percentage}%` }}></div>
@@ -159,10 +159,10 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6 flex flex-col h-full">
-          <div className="glass-card flex flex-col relative h-[400px]">
+          <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm flex flex-col relative h-[400px]">
             <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-zinc-900 dark:text-white tracking-tight">Pipeline Analytics</h3>
-              <div className="flex items-center gap-2 border border-zinc-200 dark:border-white/10 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-zinc-50 transition-colors">
+              <h3 className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">Pipeline Analytics</h3>
+              <div className="flex items-center gap-2 bg-zinc-50 border border-zinc-200 dark:border-white/10 rounded-xl px-3 py-1.5 cursor-pointer hover:bg-zinc-100 transition-colors">
                 <span className="text-sm font-medium text-zinc-700">Last 7 Days</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
               </div>
@@ -194,11 +194,11 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="glass-card p-6">
-            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white tracking-tight mb-6">Activity Snapshot</h3>
+          <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-6">
+            <h3 className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight mb-6">Activity Snapshot</h3>
             <div className="grid grid-cols-4 gap-4 divide-x divide-zinc-100">
               <div className="flex flex-col items-center justify-center">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
+                <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center mb-3">
                   <Activity size={18} className="text-emerald-600" />
                 </div>
                 <p className="text-2xl font-bold text-zinc-900">0</p>
@@ -230,9 +230,9 @@ const Dashboard = () => {
         </div>
         
         <div className="flex flex-col gap-6">
-          <div className="glass-card flex flex-col h-[520px]">
-            <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-zinc-900 dark:text-white tracking-tight">AI Curated Leads</h3>
+          <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm flex flex-col h-[520px]">
+            <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between bg-zinc-50/50 rounded-t-2xl">
+              <h3 className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">AI Curated Leads</h3>
               <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 Live Feed

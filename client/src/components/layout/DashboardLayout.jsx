@@ -54,48 +54,47 @@ const DashboardLayout = () => {
   return (
     <div className="flex flex-col min-h-screen bg-[#fafafa]">
       {/* Top Navbar */}
-      <nav className="bg-white border-b border-zinc-200 sticky top-0 z-50">
+      <nav className="bg-white/80 backdrop-blur-md border-b border-zinc-200/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex items-center justify-between h-16">
             
-            {/* Logo & Desktop Nav */}
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center gap-6 mr-8">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center">
-                       <Search className="text-white" size={18} />
-                    </div>
-                    <div>
-                      <h1 className="text-xl font-bold tracking-tight text-zinc-900 leading-tight">
-                        LeadFlow AI
-                      </h1>
-                    </div>
-                </div>
-                
-                {/* Profile Switcher (Hover to expand) */}
-                <div className="hidden md:flex bg-zinc-100 p-1 rounded-lg border border-zinc-200 group relative">
-                    <button 
-                        onClick={() => setProfileMode('freelance')}
-                        className={`flex items-center justify-center p-1.5 text-sm font-medium rounded-md transition-all duration-300 ${profileMode === 'freelance' ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700'}`}
-                    >
-                        <span className="text-base leading-none">🚀</span>
-                        <span className="overflow-hidden whitespace-nowrap transition-all duration-300 max-w-0 opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-2">
-                            Freelance
-                        </span>
-                    </button>
-                    <button 
-                        onClick={() => setProfileMode('job')}
-                        className={`flex items-center justify-center p-1.5 text-sm font-medium rounded-md transition-all duration-300 ${profileMode === 'job' ? 'bg-white shadow-sm text-purple-600' : 'text-zinc-500 hover:text-zinc-700'}`}
-                    >
-                        <span className="text-base leading-none">💼</span>
-                        <span className="overflow-hidden whitespace-nowrap transition-all duration-300 max-w-0 opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-2">
-                            Job Search
-                        </span>
-                    </button>
-                </div>
-              </div>
+            {/* Left: Logo & Switcher */}
+            <div className="flex items-center gap-6">
+              <Link to="/dashboard" className="flex items-center gap-2 group">
+                  <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
+                     <Search className="text-white" size={18} />
+                  </div>
+                  <h1 className="text-xl font-bold tracking-tight text-zinc-900 leading-tight">
+                    LeadFlow AI
+                  </h1>
+              </Link>
               
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              {/* Profile Switcher */}
+              <div className="hidden md:flex bg-zinc-100/50 p-1 rounded-lg border border-zinc-200/50 group relative">
+                  <button 
+                      onClick={() => setProfileMode('freelance')}
+                      className={`flex items-center justify-center p-1.5 text-sm font-medium rounded-md transition-all duration-300 ${profileMode === 'freelance' ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'}`}
+                  >
+                      <span className="text-base leading-none">🚀</span>
+                      <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${profileMode === 'freelance' ? 'max-w-[100px] ml-2 opacity-100' : 'max-w-0 opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-2'}`}>
+                          Freelance
+                      </span>
+                  </button>
+                  <button 
+                      onClick={() => setProfileMode('job')}
+                      className={`flex items-center justify-center p-1.5 text-sm font-medium rounded-md transition-all duration-300 ${profileMode === 'job' ? 'bg-white shadow-sm text-purple-600' : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'}`}
+                  >
+                      <span className="text-base leading-none">💼</span>
+                      <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${profileMode === 'job' ? 'max-w-[100px] ml-2 opacity-100' : 'max-w-0 opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-2'}`}>
+                          Job Search
+                      </span>
+                  </button>
+              </div>
+            </div>
+            
+            {/* Center: Nav Items */}
+            <div className="hidden sm:flex items-center justify-center flex-1 px-8">
+              <div className="flex space-x-1">
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = location.pathname.startsWith(item.path);
@@ -103,16 +102,14 @@ const DashboardLayout = () => {
                     <Link
                       key={item.name}
                       to={item.path}
-                      className={`inline-flex items-center gap-2 px-1 pt-1 pb-4 mt-4 text-sm font-medium border-b-2 transition-colors ${
+                      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-xl transition-all ${
                         isActive 
-                          ? 'border-indigo-600 text-indigo-600' 
-                          : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                          ? 'bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100/50' 
+                          : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/80'
                       }`}
                     >
-                      <div className={`p-1.5 rounded-md flex items-center justify-center transition-colors ${isActive ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400'}`}>
-                         <Icon size={16} />
-                      </div>
-                      <span className={isActive ? 'font-semibold' : ''}>{item.name}</span>
+                      <Icon size={16} className={isActive ? 'text-indigo-600' : 'text-zinc-400'} />
+                      <span>{item.name}</span>
                     </Link>
                   );
                 })}
@@ -120,7 +117,7 @@ const DashboardLayout = () => {
             </div>
 
             {/* Right side icons & Profile */}
-            <div className="hidden sm:ml-6 sm:flex sm:items-center sm:gap-6">
+            <div className="hidden sm:flex sm:items-center sm:gap-4">
               
               <button className="text-slate-400 hover:text-slate-600 transition-colors">
                  <Search size={18} />
