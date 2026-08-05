@@ -216,26 +216,6 @@ const Profile = () => {
                 <div className="p-4 rounded-xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-100 dark:border-white/5">
                   {renderPills(profile.preferredTechStack, "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20")}
                 </div>
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                    <Globe size={20} className="text-purple-500" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-white tracking-tight">Active Data Sources</h3>
-                </div>
-                <div className="p-4 rounded-xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-100 dark:border-white/5 space-y-2">
-                  {!profile.rssFeeds || profile.rssFeeds.filter(Boolean).length === 0 ? (
-                    <span className="text-zinc-500 italic text-sm">No custom RSS feeds configured.</span>
-                  ) : (
-                    profile.rssFeeds.filter(Boolean).map((feed, i) => (
-                      <div key={i} className="text-xs font-medium text-zinc-700 dark:text-zinc-300 truncate bg-zinc-200/50 dark:bg-white/5 px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-white/10">
-                        {feed}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
             </div>
         </div>
       </div>
@@ -414,66 +394,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Section 3: Data Sources */}
-          <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
-            <div className="p-5 md:p-6 bg-zinc-50/50 dark:bg-black/20 border-b border-zinc-200 dark:border-white/10 flex justify-between items-start">
-              <div>
-                <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Active Data Sources</h3>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Provide custom RSS feeds for Jarvis to scrape hourly.</p>
-              </div>
-              <button 
-                type="button" 
-                onClick={() => setProfile({...profile, rssFeeds: [...profile.rssFeeds, '']})} 
-                className="hidden md:flex items-center gap-1.5 text-sm font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-lg hover:bg-emerald-500/20 transition-colors"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Add Feed
-              </button>
-            </div>
-            
-            <div className="p-5 md:p-6 space-y-3">
-              {profile.rssFeeds.length === 0 && (
-                <div className="text-center py-6 text-zinc-500 dark:text-zinc-400 text-sm border-2 border-dashed border-zinc-200 dark:border-white/5 rounded-xl">
-                  No RSS feeds configured. Click "Add Feed" to monitor external sources.
-                </div>
-              )}
-              {profile.rssFeeds.map((feed, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-500"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
-                  </div>
-                  <input 
-                    type="url" 
-                    value={feed} 
-                    onChange={(e) => {
-                      const newFeeds = [...profile.rssFeeds];
-                      newFeeds[index] = e.target.value;
-                      setProfile({...profile, rssFeeds: newFeeds});
-                    }} 
-                    placeholder="https://..." 
-                    className="flex-1 bg-transparent border border-zinc-200 dark:border-white/10 rounded-xl px-4 py-2 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all focus:bg-white dark:focus:bg-zinc-900/50 font-mono text-sm" 
-                  />
-                  <button 
-                    type="button" 
-                    onClick={() => {
-                      const newFeeds = profile.rssFeeds.filter((_, i) => i !== index);
-                      setProfile({...profile, rssFeeds: newFeeds});
-                    }} 
-                    className="p-2.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors shrink-0 border border-transparent hover:border-red-200 dark:hover:border-red-500/20"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                  </button>
-                </div>
-              ))}
-              <button 
-                type="button" 
-                onClick={() => setProfile({...profile, rssFeeds: [...profile.rssFeeds, '']})} 
-                className="md:hidden mt-4 w-full flex items-center justify-center gap-1.5 text-sm font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-4 py-2.5 rounded-xl hover:bg-emerald-500/20 transition-colors"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Add Custom Feed
-              </button>
-            </div>
           </div>
 
           {/* Section 4: AI Preferences */}
