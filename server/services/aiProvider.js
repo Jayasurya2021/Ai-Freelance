@@ -11,13 +11,13 @@ exports.analyze = async (userId, systemPrompt, userPrompt) => {
     // Default to environment variables if no user settings are configured
     let provider = process.env.DEFAULT_AI_PROVIDER || 'gemini';
     let apiKey = process.env.GEMINI_API_KEY;
-    let modelName = 'gemini-1.5-flash';
+    let modelName = 'gemini-3.5-flash';
 
     if (settings) {
         provider = settings.provider || provider;
         if (provider === 'gemini') {
             apiKey = cryptoService.decrypt(settings.geminiKey) || process.env.GEMINI_API_KEY;
-            modelName = settings.geminiModel || 'gemini-1.5-flash';
+            modelName = settings.geminiModel || 'gemini-3.5-flash';
         } else if (provider === 'openai') {
             apiKey = cryptoService.decrypt(settings.openaiKey) || process.env.OPENAI_API_KEY;
             modelName = settings.openaiModel || 'gpt-4o';

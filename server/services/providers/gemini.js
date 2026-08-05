@@ -4,7 +4,7 @@ exports.analyze = async (apiKey, modelName, systemPrompt, userPrompt) => {
     if (!apiKey) throw new Error("Gemini API key is missing");
     
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: modelName || "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: modelName || "gemini-3.5-flash" });
 
     const fullPrompt = `${systemPrompt}\n\nUser Input:\n${userPrompt}`;
     
