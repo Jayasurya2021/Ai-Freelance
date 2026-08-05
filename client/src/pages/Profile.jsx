@@ -392,8 +392,7 @@ const Profile = () => {
                 Add Project
               </button>
             </div>
-          </div>
-
+            </div>
           </div>
 
           {/* Section 4: AI Preferences */}
@@ -423,7 +422,6 @@ const Profile = () => {
                 </>
               )}
             </button>
-          </div>
           </div>
         </form>
       </div>
