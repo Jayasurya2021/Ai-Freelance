@@ -94,6 +94,7 @@ exports.recordLearningFeedback = async (req, res) => {
 const profileCompletenessService = require('../services/profileCompletenessService');
 const Profile = require('../models/Profile');
 const SearchProfile = require('../models/SearchProfile');
+const Opportunity = require('../models/Opportunity');
 const aiProvider = require('../services/aiProvider');
 
 exports.getProfileCompleteness = async (req, res) => {

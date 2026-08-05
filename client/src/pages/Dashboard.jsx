@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { Target, Zap, Activity, TrendingUp, Inbox, Bookmark, BookmarkCheck, ExternalLink, Mail, MessageSquare, Sparkles, Briefcase, Award } from 'lucide-react';
+import { 
+  Briefcase, Code, CheckCircle, Clock, AlertTriangle, Play, Pause, List, Rss, BarChart3,
+  TrendingUp, Award, Target, Zap, Activity, BookOpen, Lightbulb, Inbox, Bookmark, BookmarkCheck, ExternalLink, Mail, MessageSquare
+} from 'lucide-react';
 import { useProfileMode } from '../context/ProfileContext';
 
 const fetchOpportunities = async (mode) => {
@@ -37,7 +40,7 @@ const StatCard = ({ title, value, icon: Icon, trend, color = 'emerald' }) => {
         <p className="text-3xl font-semibold text-zinc-900">{value}</p>
       </div>
       <div className="mt-2 text-xs font-medium text-emerald-600">
-        0% <span className="text-zinc-400 font-normal">vs yesterday</span>
+        {trend || '0% vs yesterday'}
       </div>
     </div>
   );
@@ -61,15 +64,32 @@ const EmptyState = () => (
 
 const Dashboard = () => {
   const queryClient = useQueryClient();
+  const { profileMode } = useProfileMode();
 
   const { data: opportunities = [], isLoading, isError } = useQuery({
-    queryKey: ['opportunities'],
-    queryFn: fetchOpportunities
+    queryKey: ['opportunities', profileMode],
+    queryFn: () => fetchOpportunities(profileMode)
   });
 
   const { data: stats } = useQuery({
-    queryKey: ['stats'],
-    queryFn: fetchStats
+    queryKey: ['stats', profileMode],
+    queryFn: () => fetchStats(profileMode)
+  });
+
+  const { data: completenessData } = useQuery({
+      queryKey: ['profileCompleteness', profileMode],
+      queryFn: async () => {
+          const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/analytics/profile-completeness?mode=${profileMode}`);
+          return res.data;
+      }
+  });
+
+  const { data: insightsData } = useQuery({
+      queryKey: ['insights', profileMode],
+      queryFn: async () => {
+          const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/analytics/insights?mode=${profileMode}`);
+          return res.data;
+      }
   });
 
   const toggleSaveMutation = useMutation({
@@ -87,8 +107,6 @@ const Dashboard = () => {
     const body = encodeURIComponent(`Hi there,\n\nI am very interested in the ${op.title} position you posted.\n\nMy AI copilot indicated I am a ${op.matchScore}% match for this role based on my skills.\n\nI would love to discuss this further.\n\nBest regards,`);
     window.location.href = `mailto:client@example.com?subject=${subject}&body=${body}`;
   };
-
-  const highMatches = opportunities.filter(op => op.matchScore >= 90).length;
   
   return (
     <div className="space-y-8">
@@ -103,10 +121,39 @@ const Dashboard = () => {
         </button>
       </div>
 
+      {insightsData && insightsData.insight && (
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-5 border border-indigo-100 flex items-start gap-4">
+              <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600 mt-1">
+                  <Lightbulb size={20} />
+              </div>
+              <div>
+                  <h3 className="font-semibold text-indigo-900 mb-1">AI Daily Insight</h3>
+                  <p className="text-indigo-800 text-sm">{insightsData.insight}</p>
+              </div>
+          </div>
+      )}
+
+      {completenessData && (
+          <div className="bg-white rounded-xl shadow-sm border border-zinc-200 p-6">
+              <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-zinc-900">Profile Completeness</h3>
+                  <span className="text-lg font-bold text-indigo-600">{completenessData.percentage}%</span>
+              </div>
+              <div className="w-full bg-zinc-100 rounded-full h-2.5 mb-4">
+                  <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: `${completenessData.percentage}%` }}></div>
+              </div>
+              {completenessData.missingFields?.length > 0 && (
+                  <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-100">
+                      <strong>Missing Fields to Improve AI Matching:</strong> {completenessData.missingFields.join(', ')}
+                  </div>
+              )}
+          </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        <StatCard title="New Leads Today" value={stats ? stats.todaysCount : '0'} icon={TrendingUp} color="emerald" />
+        <StatCard title="Total Opportunities" value={stats ? stats.totalCount : '0'} icon={Briefcase} color="blue" />
         <StatCard title="High Match" value={stats ? stats.highMatchCount : '0'} icon={Zap} color="yellow" />
-        <StatCard title="Applied" value={stats ? stats.appliedCount : '0'} icon={Activity} color="blue" />
+        <StatCard title="Applied" value={stats ? stats.appliedCount : '0'} icon={Activity} color="emerald" />
         <StatCard title="Saved" value={stats ? stats.savedCount : '0'} icon={Bookmark} color="purple" />
       </div>
 
