@@ -94,7 +94,7 @@ const AISettings = () => {
     };
 
     return (
-        <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-6 dark:bg-black/20 dark:border-white/10">
+        <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-6 dark:bg-white/[0.02] dark:border-white/10">
 
             {status.message && (
                 <div className={`p-4 mb-6 rounded-lg flex items-center gap-3 ${status.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -105,24 +105,24 @@ const AISettings = () => {
 
             <form onSubmit={handleSave} className="space-y-6">
                 <div>
-                    <label className="block text-sm font-medium mb-2">Active Provider</label>
+                    <label className="block text-sm font-semibold text-zinc-900 dark:text-white mb-3">Active Provider</label>
                     <div className="flex gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="provider" value="gemini" checked={settings.provider === 'gemini'} onChange={handleChange} className="w-4 h-4 text-blue-600" />
-                            <span>Google Gemini</span>
+                        <label className="flex items-center gap-2 cursor-pointer bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 px-4 py-2.5 rounded-xl hover:bg-zinc-100 transition-colors">
+                            <input type="radio" name="provider" value="gemini" checked={settings.provider === 'gemini'} onChange={handleChange} className="w-4 h-4 text-emerald-600 focus:ring-emerald-500" />
+                            <span className="text-sm font-medium text-zinc-900 dark:text-white">Google Gemini</span>
                         </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="provider" value="openai" checked={settings.provider === 'openai'} onChange={handleChange} className="w-4 h-4 text-purple-600" />
-                            <span>OpenAI</span>
+                        <label className="flex items-center gap-2 cursor-pointer bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 px-4 py-2.5 rounded-xl hover:bg-zinc-100 transition-colors">
+                            <input type="radio" name="provider" value="openai" checked={settings.provider === 'openai'} onChange={handleChange} className="w-4 h-4 text-emerald-600 focus:ring-emerald-500" />
+                            <span className="text-sm font-medium text-zinc-900 dark:text-white">OpenAI</span>
                         </label>
                     </div>
                 </div>
 
                 {settings.provider === 'gemini' && (
-                    <div className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl space-y-4">
-                        <h2 className="text-xl font-semibold">Gemini Configuration</h2>
+                    <div className="p-5 border border-zinc-200 dark:border-white/10 rounded-2xl space-y-5 bg-white dark:bg-transparent shadow-sm">
+                        <h2 className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">Gemini Configuration</h2>
                         <div>
-                            <label className="block text-sm font-medium mb-2">API Key</label>
+                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">API Key</label>
                             <div className="relative">
                                 <input 
                                     type={showGeminiKey ? 'text' : 'password'} 
@@ -130,16 +130,16 @@ const AISettings = () => {
                                     value={settings.geminiKey}
                                     onChange={handleChange}
                                     placeholder="AIza..."
-                                    className="w-full p-3 pr-12 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700"
+                                    className="w-full p-3 pr-12 border rounded-xl bg-zinc-50/50 dark:bg-white/5 border-zinc-200 dark:border-white/10 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-zinc-900 dark:text-white"
                                 />
-                                <button type="button" onClick={() => setShowGeminiKey(!showGeminiKey)} className="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
+                                <button type="button" onClick={() => setShowGeminiKey(!showGeminiKey)} className="absolute right-3 top-3 text-zinc-400 hover:text-zinc-600">
                                     {showGeminiKey ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-2">Model</label>
-                            <select name="geminiModel" value={settings.geminiModel} onChange={handleChange} className="w-full p-3 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700">
+                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Model</label>
+                            <select name="geminiModel" value={settings.geminiModel} onChange={handleChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 dark:bg-white/5 border-zinc-200 dark:border-white/10 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-zinc-900 dark:text-white">
                                 <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                                 <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
                             </select>
@@ -148,10 +148,10 @@ const AISettings = () => {
                 )}
 
                 {settings.provider === 'openai' && (
-                    <div className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl space-y-4">
-                        <h2 className="text-xl font-semibold">OpenAI Configuration</h2>
+                    <div className="p-5 border border-zinc-200 dark:border-white/10 rounded-2xl space-y-5 bg-white dark:bg-transparent shadow-sm">
+                        <h2 className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">OpenAI Configuration</h2>
                         <div>
-                            <label className="block text-sm font-medium mb-2">API Key</label>
+                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">API Key</label>
                             <div className="relative">
                                 <input 
                                     type={showOpenaiKey ? 'text' : 'password'} 
@@ -159,16 +159,16 @@ const AISettings = () => {
                                     value={settings.openaiKey}
                                     onChange={handleChange}
                                     placeholder="sk-..."
-                                    className="w-full p-3 pr-12 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700"
+                                    className="w-full p-3 pr-12 border rounded-xl bg-zinc-50/50 dark:bg-white/5 border-zinc-200 dark:border-white/10 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-zinc-900 dark:text-white"
                                 />
-                                <button type="button" onClick={() => setShowOpenaiKey(!showOpenaiKey)} className="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
+                                <button type="button" onClick={() => setShowOpenaiKey(!showOpenaiKey)} className="absolute right-3 top-3 text-zinc-400 hover:text-zinc-600">
                                     {showOpenaiKey ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-2">Model</label>
-                            <select name="openaiModel" value={settings.openaiModel} onChange={handleChange} className="w-full p-3 border rounded-lg bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700">
+                            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Model</label>
+                            <select name="openaiModel" value={settings.openaiModel} onChange={handleChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 dark:bg-white/5 border-zinc-200 dark:border-white/10 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-zinc-900 dark:text-white">
                                 <option value="gpt-4o">GPT-4o</option>
                                 <option value="gpt-4o-mini">GPT-4o Mini</option>
                             </select>
@@ -176,11 +176,11 @@ const AISettings = () => {
                     </div>
                 )}
 
-                <div className="flex gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                    <button type="submit" disabled={loading} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+                <div className="flex gap-4 pt-6 border-t border-zinc-200 dark:border-white/10">
+                    <button type="submit" disabled={loading} className="flex items-center gap-2 px-6 py-2.5 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition shadow-sm">
                         <Save size={18} /> {loading ? 'Saving...' : 'Save Settings'}
                     </button>
-                    <button type="button" onClick={handleTest} disabled={testing} className="px-6 py-3 bg-slate-200 dark:bg-slate-700 font-medium rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition">
+                    <button type="button" onClick={handleTest} disabled={testing} className="px-6 py-2.5 bg-zinc-100 border border-zinc-200 dark:bg-white/5 dark:border-white/10 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl hover:bg-zinc-200 dark:hover:bg-white/10 transition shadow-sm">
                         {testing ? 'Testing...' : 'Test Connection'}
                     </button>
                 </div>

@@ -71,71 +71,71 @@ const SourceManager = () => {
     };
 
     return (
-        <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-6 dark:bg-black/20 dark:border-white/10">
+        <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-6 dark:bg-white/[0.02] dark:border-white/10">
 
-            <div className="mb-10 bg-slate-50 dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-                <h2 className="text-xl font-semibold mb-4">{editingId ? 'Edit Source' : 'Add New Source'}</h2>
-                <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mb-10 bg-white dark:bg-transparent p-6 rounded-2xl border border-zinc-200 dark:border-white/10 shadow-sm">
+                <h2 className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight mb-5">{editingId ? 'Edit Source' : 'Add New Source'}</h2>
+                <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label className="block text-sm mb-1">Source Name</label>
-                        <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full p-2 border rounded" required />
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Source Name</label>
+                        <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full p-3 border rounded-xl bg-zinc-50/50 dark:bg-white/5 border-zinc-200 dark:border-white/10 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-zinc-900 dark:text-white" required />
                     </div>
                     <div>
-                        <label className="block text-sm mb-1">Source Type</label>
-                        <select value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})} className="w-full p-2 border rounded">
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Source Type</label>
+                        <select value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})} className="w-full p-3 border rounded-xl bg-zinc-50/50 dark:bg-white/5 border-zinc-200 dark:border-white/10 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-zinc-900 dark:text-white">
                             <option value="rss">RSS Feed</option>
                             <option value="url">Single URL</option>
                         </select>
                     </div>
                     <div className="md:col-span-2">
-                        <label className="block text-sm mb-1">Source URL</label>
-                        <input type="url" value={formData.url} onChange={(e) => setFormData({...formData, url: e.target.value})} className="w-full p-2 border rounded" required />
+                        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Source URL</label>
+                        <input type="url" value={formData.url} onChange={(e) => setFormData({...formData, url: e.target.value})} className="w-full p-3 border rounded-xl bg-zinc-50/50 dark:bg-white/5 border-zinc-200 dark:border-white/10 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-zinc-900 dark:text-white" required />
                     </div>
                     <div>
-                        <button type="submit" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                            <Plus size={18} /> {editingId ? 'Update' : 'Add'}
+                        <button type="submit" className="flex items-center gap-2 bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-emerald-600 transition shadow-sm">
+                            <Plus size={18} /> {editingId ? 'Update Source' : 'Add Source'}
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto bg-white border border-zinc-200 rounded-2xl shadow-sm dark:bg-transparent dark:border-white/10">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-slate-100 dark:bg-slate-700">
-                            <th className="p-3">Name</th>
-                            <th className="p-3">Type</th>
-                            <th className="p-3">URL</th>
-                            <th className="p-3">Status</th>
-                            <th className="p-3">Last Checked</th>
-                            <th className="p-3">Actions</th>
+                        <tr className="bg-zinc-50/50 border-b border-zinc-100">
+                            <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Name</th>
+                            <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Type</th>
+                            <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">URL</th>
+                            <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Status</th>
+                            <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Last Checked</th>
+                            <th className="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-zinc-100">
                         {sources.map(source => (
-                            <tr key={source._id} className="border-b dark:border-slate-700">
-                                <td className="p-3 font-medium">{source.name}</td>
-                                <td className="p-3 uppercase text-sm">{source.type}</td>
-                                <td className="p-3 text-sm truncate max-w-xs">{source.url}</td>
-                                <td className="p-3">
+                            <tr key={source._id} className="hover:bg-zinc-50 transition-colors">
+                                <td className="p-4 text-sm font-medium text-zinc-900">{source.name}</td>
+                                <td className="p-4 uppercase text-xs font-bold text-zinc-500">{source.type}</td>
+                                <td className="p-4 text-sm text-zinc-600 truncate max-w-[200px]">{source.url}</td>
+                                <td className="p-4">
                                     {source.status === 'active' ? (
-                                        <span className="flex items-center gap-1 text-green-600"><CheckCircle size={16}/> Active</span>
+                                        <span className="px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg font-bold flex items-center gap-1 w-max"><CheckCircle size={12}/> Active</span>
                                     ) : (
-                                        <span className="flex items-center gap-1 text-red-600"><XCircle size={16}/> Error</span>
+                                        <span className="px-2.5 py-1 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg font-bold flex items-center gap-1 w-max"><XCircle size={12}/> Error</span>
                                     )}
                                 </td>
-                                <td className="p-3 text-sm text-slate-500">
+                                <td className="p-4 text-sm font-medium text-zinc-500">
                                     {source.lastChecked ? new Date(source.lastChecked).toLocaleString() : 'Never'}
                                 </td>
-                                <td className="p-3 flex gap-2">
-                                    <button onClick={() => startEdit(source)} className="p-2 text-blue-600 hover:bg-blue-50 rounded"><Edit2 size={16}/></button>
-                                    <button onClick={() => handleDelete(source._id)} className="p-2 text-red-600 hover:bg-red-50 rounded"><Trash2 size={16}/></button>
+                                <td className="p-4 flex gap-2">
+                                    <button onClick={() => startEdit(source)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={16}/></button>
+                                    <button onClick={() => handleDelete(source._id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16}/></button>
                                 </td>
                             </tr>
                         ))}
                         {sources.length === 0 && !loading && (
                             <tr>
-                                <td colSpan="6" className="p-6 text-center text-slate-500">No sources configured yet.</td>
+                                <td colSpan="6" className="p-8 text-center text-zinc-500 text-sm">No sources configured yet. Add one above.</td>
                             </tr>
                         )}
                     </tbody>
