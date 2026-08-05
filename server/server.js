@@ -29,6 +29,7 @@ const aiSettingsRoutes = require('./routes/aiSettingsRoutes');
 const analyzerRoutes = require('./routes/analyzerRoutes');
 const sourceRoutes = require('./routes/sourceRoutes');
 const monitoringRoutes = require('./routes/monitoringRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
@@ -39,6 +40,7 @@ app.use('/api/settings/ai', aiSettingsRoutes);
 app.use('/api/analyzer', analyzerRoutes);
 app.use('/api/sources', sourceRoutes);
 app.use('/api/monitoring', monitoringRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Connect to MongoDB
 const connectDB = async () => {

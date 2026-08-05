@@ -35,6 +35,13 @@ const opportunitySchema = new mongoose.Schema({
     recommendationReason: { type: String, default: '' },
     portfolioRecommendation: { type: String, default: '' },
     
+    // Phase 3 Features
+    aiConfidenceScore: { type: String, default: 'Medium' }, // Very High, High, Medium, Low
+    strengths: { type: [String], default: [] },
+    weaknesses: { type: [String], default: [] },
+    estimatedProbabilityOfSuccess: { type: Number, default: 0 },
+    resumeRecommendation: { type: String, default: '' },
+    
     // Semantic Search Embedding
     embedding: { type: [Number], default: [] },
     
