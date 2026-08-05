@@ -46,6 +46,8 @@ exports.ingestRSSFeed = async (feedUrl, sourceName, platform, userId) => {
 
             // 3. Save to DB
             const opportunity = new Opportunity({
+                userId: userId,
+                profileMode: userProfile.activeProfileMode || 'freelance',
                 title: item.title,
                 description: item.contentSnippet || item.content || 'No description available.',
                 sourceName,
@@ -91,6 +93,8 @@ exports.ingestUrl = async (url, sourceName, platform, userId) => {
         const embedding = await aiService.generateEmbedding(textToAnalyze);
 
         const opportunity = new Opportunity({
+            userId: userId,
+            profileMode: userProfile.activeProfileMode || 'freelance',
             title: $('title').text() || 'Imported Opportunity',
             description: textToAnalyze.substring(0, 500) + '...', // Store a snippet
             sourceName,

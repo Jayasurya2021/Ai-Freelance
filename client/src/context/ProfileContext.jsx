@@ -4,10 +4,41 @@ import axios from 'axios';
 const ProfileContext = createContext();
 
 export const ProfileProvider = ({ children }) => {
-    // Default to freelance, check local storage for persistence
-    const [profileMode, setProfileMode] = useState(() => {
+    const { user, updateUser } = useAuth();
+    
+    // Default to freelance, check local storage or user object for persistence
+    const [profileMode, setProfileModeState] = useState(() => {
         return localStorage.getItem('leadflow_profile_mode') || 'freelance';
     });
+
+    // When user loads from backend, sync the mode if it differs
+    useEffect(() => {
+        if (user && user.activeProfileMode && user.activeProfileMode !== profileMode) {
+            setProfileModeState(user.activeProfileMode);
+            localStorage.setItem('leadflow_profile_mode', user.activeProfileMode);
+        }
+    }, [user]);
+
+    const setProfileMode = async (mode) => {
+        setProfileModeState(mode);
+        localStorage.setItem('leadflow_profile_mode', mode);
+        
+        // Update local user state if available
+        if (user) {
+            updateUser({ activeProfileMode: mode });
+            
+            // Persist to backend
+            try {
+                const token = localStorage.getItem('token');
+                await axios.put(`${import.meta.env.VITE_API_URL}/api/profile`, 
+                    { activeProfileMode: mode },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            } catch (err) {
+                console.error("Failed to sync profile mode to backend", err);
+            }
+        }
+    };
 
     // Sync state changes to local storage and update Axios defaults
     useEffect(() => {

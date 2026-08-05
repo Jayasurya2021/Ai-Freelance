@@ -14,25 +14,28 @@ exports.analyzeOpportunity = async (opportunityText, userProfile) => {
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash", generationConfig: { responseMimeType: "application/json" }});
         
+        const mode = userProfile.activeProfileMode || 'freelance';
+        const profile = mode === 'freelance' ? userProfile.freelanceProfile : userProfile.jobProfile;
+        const profileContextStr = profile ? `
+        Skills: ${profile.skills?.join(', ') || 'Not specified'}
+        Experience: ${profile.experience || 'Not specified'}
+        Rate/Salary: ${mode === 'freelance' ? profile.hourlyRate : profile.expectedSalary || 'Not specified'}
+        Preferred Tech Stack: ${profile.preferredTechStack?.join(', ') || 'Not specified'}
+        Portfolio Projects: ${profile.portfolioProjects ? JSON.stringify(profile.portfolioProjects) : 'None'}
+        Resume Context: ${profile.resumeText ? profile.resumeText.substring(0, 1000) : 'None'}
+        ` : 'No profile data.';
+
         const prompt = `
-        You are an expert freelance career copilot.
-        Analyze the following freelance opportunity against the user's profile using deep semantic understanding, not just keyword matching.
+        You are an expert ${mode === 'freelance' ? 'freelance career' : 'job search'} copilot.
+        Analyze the following opportunity against the user's profile using deep semantic understanding, not just keyword matching.
         
-        User Profile:
-        Skills: ${userProfile?.skills?.join(', ') || 'Not specified'}
-        Experience: ${userProfile?.experience || 'Not specified'}
-        Hourly Rate: ${userProfile?.hourlyRate || 'Not specified'}
-        Preferred Tech Stack: ${userProfile?.preferredTechStack?.join(', ') || 'Not specified'}
-        Preferred Project Types: ${userProfile?.preferredProjectTypes?.join(', ') || 'Not specified'}
-        Preferred Budget: ${userProfile?.preferredBudget || 'Not specified'}
-        Preferred Countries: ${userProfile?.preferredCountries?.join(', ') || 'Not specified'}
-        Portfolio Projects: ${userProfile?.portfolioProjects ? JSON.stringify(userProfile.portfolioProjects) : 'None'}
-        Resume Context: ${userProfile?.resumeText ? userProfile.resumeText.substring(0, 1000) : 'None'}
+        User Profile (${mode} mode):
+        ${profileContextStr}
         
         Opportunity Text:
         """${opportunityText}"""
         
-        Calculate a match score (0-100) based on skill match, portfolio similarity, experience, tech stack, budget, country, and project category.
+        Calculate a match score (0-100) based on skill match, experience, tech stack, and category.
         Decide a recommendation level: "Apply Immediately", "Good Opportunity", "Worth Considering", "Low Priority", or "Skip".
         Recommend the BEST portfolio project to share for this specific job, if any.
         
@@ -96,15 +99,22 @@ exports.generateProposal = async (opportunity, userProfile) => {
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         
-        const prompt = `
-        You are an expert freelance career copilot helping a freelancer write a winning proposal.
+        const mode = userProfile.activeProfileMode || 'freelance';
+        const profile = mode === 'freelance' ? userProfile.freelanceProfile : userProfile.jobProfile;
         
-        User Profile:
-        Name: ${userProfile?.name || 'Freelancer'}
-        Skills: ${userProfile?.skills?.join(', ') || 'Not specified'}
-        Experience: ${userProfile?.experience || 'Not specified'}
-        Portfolio Projects: ${userProfile?.portfolioProjects ? JSON.stringify(userProfile.portfolioProjects) : 'None'}
-        Resume Context: ${userProfile?.resumeText ? userProfile.resumeText.substring(0, 1000) : 'None'}
+        const profileContextStr = profile ? `
+        Name: ${userProfile.name || 'Professional'}
+        Skills: ${profile.skills?.join(', ') || 'Not specified'}
+        Experience: ${profile.experience || 'Not specified'}
+        Portfolio Projects: ${profile.portfolioProjects ? JSON.stringify(profile.portfolioProjects) : 'None'}
+        Resume Context: ${profile.resumeText ? profile.resumeText.substring(0, 1000) : 'None'}
+        ` : 'No profile data.';
+
+        const prompt = `
+        You are an expert ${mode === 'freelance' ? 'freelance career' : 'job search'} copilot helping a professional write a winning ${mode === 'freelance' ? 'proposal' : 'cover letter'}.
+        
+        User Profile (${mode} mode):
+        ${profileContextStr}
         
         Opportunity Details:
         Title: ${opportunity.title}

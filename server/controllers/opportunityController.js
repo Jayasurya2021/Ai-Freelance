@@ -50,7 +50,8 @@ exports.getOpportunities = async (req, res) => {
         }
 
         // Standard Flow
-        const query = {};
+        const mode = req.query.mode || 'freelance';
+        const query = { profileMode: mode };
 
         const opportunities = await Opportunity.find(query)
             .sort({ matchScore: -1 })
@@ -130,15 +131,16 @@ exports.toggleSave = async (req, res) => {
 // Get Dashboard Stats
 exports.getDashboardStats = async (req, res) => {
     try {
+        const mode = req.query.mode || 'freelance';
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         const [todaysCount, highMatchCount, savedCount, appliedCount, ignoredCount] = await Promise.all([
-            Opportunity.countDocuments({ createdAt: { $gte: today } }),
-            Opportunity.countDocuments({ matchScore: { $gte: 70 } }), // Generic threshold
-            Opportunity.countDocuments({ saved: true }),
-            Opportunity.countDocuments({ status: 'Applied' }),
-            Opportunity.countDocuments({ status: 'Ignored' })
+            Opportunity.countDocuments({ profileMode: mode, createdAt: { $gte: today } }),
+            Opportunity.countDocuments({ profileMode: mode, matchScore: { $gte: 70 } }), // Generic threshold
+            Opportunity.countDocuments({ profileMode: mode, saved: true }),
+            Opportunity.countDocuments({ profileMode: mode, status: 'Applied' }),
+            Opportunity.countDocuments({ profileMode: mode, status: 'Ignored' })
         ]);
 
         res.status(200).json({
@@ -157,7 +159,9 @@ exports.getDashboardStats = async (req, res) => {
 // Get Kanban Board Data
 exports.getKanbanBoard = async (req, res) => {
     try {
+        const mode = req.query.mode || 'freelance';
         const opportunities = await Opportunity.find({
+            profileMode: mode,
             $or: [
                 { saved: true },
                 { status: { $in: ['Applied', 'Interviewing'] } }

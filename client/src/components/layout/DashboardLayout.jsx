@@ -42,14 +42,25 @@ const DashboardLayout = () => {
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  const navItems = [
-    { name: 'Overview', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Feed', path: '/feed', icon: List },
+  const freelanceNavItems = [
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Freelance Feed', path: '/feed', icon: List },
     { name: 'Analyzer', path: '/url-analyzer', icon: Globe },
+    { name: 'Projects', path: '/saved', icon: Briefcase },
     { name: 'Watchlist', path: '/watchlist', icon: Eye },
-    { name: 'Monitoring', path: '/monitoring', icon: Activity },
-    { name: 'Saved', path: '/saved', icon: Bookmark },
+    { name: 'Monitoring', path: '/monitoring', icon: Activity }
   ];
+
+  const jobNavItems = [
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Job Feed', path: '/feed', icon: List },
+    { name: 'Analyzer', path: '/url-analyzer', icon: Globe },
+    { name: 'Applications', path: '/saved', icon: Bookmark },
+    { name: 'Watchlist', path: '/watchlist', icon: Eye },
+    { name: 'Monitoring', path: '/monitoring', icon: Activity }
+  ];
+
+  const navItems = profileMode === 'freelance' ? freelanceNavItems : jobNavItems;
 
   return (
     <div className="flex flex-col min-h-screen bg-[#fafafa]">
@@ -69,26 +80,29 @@ const DashboardLayout = () => {
                   </h1>
               </Link>
               
-              {/* Profile Switcher */}
-              <div className="hidden md:flex bg-zinc-100/50 p-1 rounded-lg border border-zinc-200/50 group relative">
-                  <button 
-                      onClick={() => setProfileMode('freelance')}
-                      className={`flex items-center justify-center p-1.5 text-sm font-medium rounded-md transition-all duration-300 ${profileMode === 'freelance' ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'}`}
-                  >
-                      <span className="text-base leading-none">🚀</span>
-                      <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${profileMode === 'freelance' ? 'max-w-[100px] ml-2 opacity-100' : 'max-w-0 opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-2'}`}>
-                          Freelance
-                      </span>
-                  </button>
-                  <button 
-                      onClick={() => setProfileMode('job')}
-                      className={`flex items-center justify-center p-1.5 text-sm font-medium rounded-md transition-all duration-300 ${profileMode === 'job' ? 'bg-white shadow-sm text-purple-600' : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'}`}
-                  >
-                      <span className="text-base leading-none">💼</span>
-                      <span className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${profileMode === 'job' ? 'max-w-[100px] ml-2 opacity-100' : 'max-w-0 opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-2'}`}>
-                          Job Search
-                      </span>
-                  </button>
+              {/* Profile Switcher - Single Active Button */}
+              <div className="hidden md:flex relative group cursor-pointer">
+                  <div className="flex items-center gap-2 bg-zinc-100/50 hover:bg-zinc-200/50 px-3 py-1.5 rounded-lg border border-zinc-200/50 transition-colors">
+                      <span className="text-base leading-none">{profileMode === 'freelance' ? '🚀' : '💼'}</span>
+                      <span className="text-sm font-medium text-zinc-700 capitalize">{profileMode} Mode</span>
+                      <ChevronDown size={14} className="text-zinc-500" />
+                  </div>
+                  
+                  {/* Dropdown Menu */}
+                  <div className="absolute top-full left-0 mt-1 w-40 bg-white border border-zinc-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
+                      <button 
+                          onClick={() => setProfileMode('freelance')}
+                          className={`w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-zinc-50 transition-colors ${profileMode === 'freelance' ? 'text-blue-600 bg-blue-50/50 font-semibold' : 'text-zinc-600'}`}
+                      >
+                          <span>🚀</span> Freelance
+                      </button>
+                      <button 
+                          onClick={() => setProfileMode('job')}
+                          className={`w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-zinc-50 transition-colors ${profileMode === 'job' ? 'text-purple-600 bg-purple-50/50 font-semibold' : 'text-zinc-600'}`}
+                      >
+                          <span>💼</span> Job Search
+                      </button>
+                  </div>
               </div>
             </div>
             

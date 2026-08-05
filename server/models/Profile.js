@@ -32,6 +32,7 @@ const profileSchema = new mongoose.Schema({
         careerGoals: { type: [String], default: [] }
     },
     // Global Settings
+    activeProfileMode: { type: String, enum: ['freelance', 'job'], default: 'freelance' },
     notificationThreshold: { type: Number, default: 70 }
 }, {
     timestamps: true

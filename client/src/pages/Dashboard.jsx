@@ -113,7 +113,9 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white tracking-tight">Overview</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">Here's a snapshot of your freelance pipeline.</p>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">
+            {profileMode === 'freelance' ? "Here's a snapshot of your freelance pipeline." : "Here's a snapshot of your job applications."}
+          </p>
         </div>
         <button className="flex items-center justify-center gap-2 bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-emerald-600 transition-all active:scale-95 shadow-sm">
           Run Analysis

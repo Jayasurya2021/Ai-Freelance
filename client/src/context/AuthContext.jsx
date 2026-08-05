@@ -63,8 +63,23 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
+  const switchProfile = async (mode) => {
+    try {
+      const token = localStorage.getItem('token');
+      // Update backend
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/profile`, 
+        { activeProfileMode: mode },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // Update local state
+      updateUser({ activeProfileMode: mode });
+    } catch (error) {
+      console.error("Failed to switch profile", error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, googleLogin, logout, updateUser, loading }}>
+    <AuthContext.Provider value={{ user, login, register, googleLogin, logout, updateUser, switchProfile, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );
