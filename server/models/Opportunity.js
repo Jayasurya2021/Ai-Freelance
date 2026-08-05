@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 
 const opportunitySchema = new mongoose.Schema({
     // Core details
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile', required: true },
+    profileMode: { type: String, enum: ['freelance', 'job'], required: true, default: 'freelance' },
     title: { type: String, required: true },
     description: { type: String, required: true },
     

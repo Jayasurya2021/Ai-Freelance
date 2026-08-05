@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const watchlistSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile', required: true },
+    profileMode: { type: String, enum: ['freelance', 'job'], required: true, default: 'freelance' },
     technologies: { type: [String], default: [] },
     companies: { type: [String], default: [] },
     jobTitles: { type: [String], default: [] },

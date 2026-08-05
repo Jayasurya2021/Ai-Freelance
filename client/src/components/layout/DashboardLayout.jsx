@@ -5,11 +5,13 @@ import axios from 'axios';
 import { LayoutDashboard, Briefcase, Bookmark, User, Menu, X, Search, LogOut, Bell, Settings, Activity, Globe, Rss, List, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
+import { useProfileMode } from '../../context/ProfileContext';
 
 const DashboardLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { profileMode, setProfileMode } = useProfileMode();
   const queryClient = useQueryClient();
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -60,14 +62,32 @@ const DashboardLayout = () => {
             
             {/* Logo & Desktop Nav */}
             <div className="flex">
-              <div className="flex-shrink-0 flex items-center gap-2 mr-8">
-                <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center">
-                   <Search className="text-white" size={18} />
+              <div className="flex-shrink-0 flex items-center gap-4 mr-8">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center">
+                       <Search className="text-white" size={18} />
+                    </div>
+                    <div>
+                      <h1 className="text-xl font-bold tracking-tight text-zinc-900 leading-tight">
+                        LeadFlow AI
+                      </h1>
+                    </div>
                 </div>
-                <div>
-                  <h1 className="text-xl font-bold tracking-tight text-zinc-900 leading-tight">
-                    LeadFlow AI
-                  </h1>
+                
+                {/* Profile Switcher */}
+                <div className="hidden md:flex bg-zinc-100 p-1 rounded-lg border border-zinc-200">
+                    <button 
+                        onClick={() => setProfileMode('freelance')}
+                        className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${profileMode === 'freelance' ? 'bg-white shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+                    >
+                        🚀 Freelance
+                    </button>
+                    <button 
+                        onClick={() => setProfileMode('job')}
+                        className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${profileMode === 'job' ? 'bg-white shadow-sm text-purple-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+                    >
+                        💼 Job Search
+                    </button>
                 </div>
               </div>
               

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ProfileProvider } from './context/ProfileContext';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Opportunities from './pages/Opportunities';
@@ -31,7 +32,8 @@ function App() {
     <GoogleOAuthProvider clientId={clientId}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-        <BrowserRouter>
+          <ProfileProvider>
+            <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Auth />} />
             <Route path="/register" element={<Auth />} />
@@ -53,10 +55,11 @@ function App() {
               <Route path="feed" element={<OpportunityFeed />} />
               <Route path="watchlist" element={<Watchlist />} />
             </Route>
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
+            </Routes>
+          </BrowserRouter>
+          </ProfileProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </GoogleOAuthProvider>
   );
 }
