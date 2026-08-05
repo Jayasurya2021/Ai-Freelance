@@ -217,7 +217,23 @@ const DashboardLayout = () => {
               className="sm:hidden border-t border-zinc-200 bg-white"
             >
               <div className="pt-2 pb-3 space-y-1">
-                {[...navItems, { name: 'Profile', path: '/profile', icon: User }].map((item) => {
+                {/* Mobile Mode Switcher */}
+                <div className="px-4 py-3 flex gap-2">
+                  <button
+                    onClick={() => { setProfileMode('freelance'); setMobileMenuOpen(false); }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors ${profileMode === 'freelance' ? 'bg-blue-50 text-blue-600' : 'bg-zinc-100 text-zinc-600'}`}
+                  >
+                    <span>🚀</span> Freelance
+                  </button>
+                  <button
+                    onClick={() => { setProfileMode('job'); setMobileMenuOpen(false); }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors ${profileMode === 'job' ? 'bg-purple-50 text-purple-600' : 'bg-zinc-100 text-zinc-600'}`}
+                  >
+                    <span>💼</span> Job Search
+                  </button>
+                </div>
+
+                {[...navItems, { name: 'Profile Settings', path: '/profile', icon: User }].map((item) => {
                   const Icon = item.icon;
                   const isActive = location.pathname.startsWith(item.path);
                   return (

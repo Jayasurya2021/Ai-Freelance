@@ -91,7 +91,7 @@ const Profile = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setLoading(true);
     setMessage('');
     try {
@@ -159,7 +159,7 @@ const Profile = () => {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="space-y-8">
 
         {/* --- GLOBAL SETTINGS TAB --- */}
         {activeTab === 'global' && (
@@ -237,8 +237,8 @@ const Profile = () => {
                   <button type="button" onClick={() => setFreelanceProfile({...freelanceProfile, portfolioProjects: [...freelanceProfile.portfolioProjects, { title: '', link: '', description: '' }]})} className="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-600 transition">Add Project</button>
                 </div>
                 <div className="p-5 space-y-4">
-                  {freelanceProfile.portfolioProjects.length === 0 && <p className="text-zinc-500 text-sm">No projects added. AI uses these to write proposals.</p>}
-                  {freelanceProfile.portfolioProjects.map((proj, i) => (
+                  {(!freelanceProfile.portfolioProjects || freelanceProfile.portfolioProjects.length === 0) && <p className="text-zinc-500 text-sm">No projects added. AI uses these to write proposals.</p>}
+                  {(freelanceProfile.portfolioProjects || []).map((proj, i) => (
                     <div key={i} className="p-4 bg-zinc-50/50 border border-zinc-200 rounded-xl relative space-y-3">
                         <button type="button" onClick={() => {
                             const newP = [...freelanceProfile.portfolioProjects];
@@ -315,12 +315,12 @@ const Profile = () => {
         )}
 
         <div className="pt-4 flex justify-end sticky bottom-6 z-10">
-          <button type="submit" disabled={loading} className="bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-emerald-600 transition-all shadow-lg flex items-center gap-2">
+          <button type="button" onClick={handleSubmit} disabled={loading} className="bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-emerald-600 transition-all shadow-lg flex items-center gap-2">
             {loading ? 'Saving...' : 'Save All Configurations'}
           </button>
         </div>
 
-      </form>
+      </div>
     </div>
   );
 };
