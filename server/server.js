@@ -7,8 +7,6 @@ const aiAgent = require('./cron/aiAgent');
 
 dotenv.config();
 
-console.log("MONGO_URI =", process.env.MONGO_URI);
-
 const app = express();
 
 app.use(cors());
@@ -27,12 +25,20 @@ const authRoutes = require('./routes/authRoutes');
 const opportunityRoutes = require('./routes/opportunityRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const aiSettingsRoutes = require('./routes/aiSettingsRoutes');
+const analyzerRoutes = require('./routes/analyzerRoutes');
+const sourceRoutes = require('./routes/sourceRoutes');
+const monitoringRoutes = require('./routes/monitoringRoutes');
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/opportunities', opportunityRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/settings/ai', aiSettingsRoutes);
+app.use('/api/analyzer', analyzerRoutes);
+app.use('/api/sources', sourceRoutes);
+app.use('/api/monitoring', monitoringRoutes);
 
 // Connect to MongoDB
 const connectDB = async () => {

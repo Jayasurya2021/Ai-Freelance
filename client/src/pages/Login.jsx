@@ -39,12 +39,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#0a0a0a] relative overflow-hidden p-4">
-      {/* Background decorations */}
-      <div className="absolute top-0 w-full h-full overflow-hidden pointer-events-none flex justify-center items-center">
-        <div className="absolute w-[800px] h-[800px] bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-3xl -translate-y-1/2 opacity-50"></div>
-        <div className="absolute w-[600px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 opacity-50"></div>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-[#fafafa] relative overflow-hidden p-4">
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -52,13 +47,13 @@ const Login = () => {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="w-full max-w-[420px] relative z-10"
       >
-        <div className="bg-white/80 dark:bg-[#121212]/80 backdrop-blur-xl border border-zinc-200/50 dark:border-white/10 rounded-2xl shadow-xl p-8 md:p-10">
+        <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-8 md:p-10">
           
           <div className="flex flex-col items-center mb-8">
-            <div className="w-12 h-12 rounded-xl bg-zinc-900 dark:bg-white flex items-center justify-center mb-4 shadow-md">
-               <Search className="text-white dark:text-zinc-900" size={24} />
+            <div className="w-12 h-12 rounded-xl bg-zinc-900 flex items-center justify-center mb-4">
+               <Search className="text-white" size={24} />
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Welcome back</h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 font-serif-heading">Welcome back</h2>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">Sign in to your AI Copilot</p>
           </div>
 
@@ -70,22 +65,22 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-2">Email Address</label>
+              <label className="block text-xs font-semibold text-zinc-700 uppercase tracking-wider mb-2">Email Address</label>
               <input 
                 type="email" 
-                className="w-full bg-white dark:bg-[#0a0a0a] border border-zinc-300 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-zinc-400"
+                className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all placeholder:text-zinc-400"
                 placeholder="hello@example.com"
                 value={email} onChange={e => setEmail(e.target.value)} required 
               />
             </div>
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Password</label>
-                <a href="#" className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">Forgot?</a>
+                <label className="block text-xs font-semibold text-zinc-700 uppercase tracking-wider">Password</label>
+                <a href="#" className="text-xs font-medium text-blue-600 hover:underline">Forgot?</a>
               </div>
               <input 
                 type="password" 
-                className="w-full bg-white dark:bg-[#0a0a0a] border border-zinc-300 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder:text-zinc-400"
+                className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all placeholder:text-zinc-400"
                 placeholder="••••••••"
                 value={password} onChange={e => setPassword(e.target.value)} required 
               />
@@ -106,7 +101,7 @@ const Login = () => {
                 <div className="w-full border-t border-zinc-200 dark:border-white/10"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white dark:bg-[#121212] text-zinc-500">Or continue with</span>
+                <span className="px-2 bg-transparent text-zinc-500">Or continue with</span>
               </div>
             </div>
 

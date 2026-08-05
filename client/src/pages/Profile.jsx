@@ -151,7 +151,7 @@ const Profile = () => {
         
         {/* Left Column: Identity & Links */}
         <div className="space-y-6">
-          <div className="glass-card p-6 flex flex-col items-center text-center">
+          <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-6 flex flex-col items-center text-center">
             <div className="w-24 h-24 bg-gradient-to-tr from-blue-500/20 to-emerald-500/20 rounded-full border border-white/10 flex items-center justify-center mb-4">
                <User size={40} className="text-zinc-700 dark:text-zinc-300" />
             </div>
@@ -190,7 +190,7 @@ const Profile = () => {
         </div>
 
         {/* Right Column: Skills & Tech Stack */}
-        <div className="lg:col-span-2 glass-card p-6 md:p-8">
+        <div className="lg:col-span-2 bg-white border border-zinc-200 rounded-2xl shadow-sm p-6 md:p-8">
             <div className="space-y-8 h-full">
               <div>
                 <div className="flex items-center gap-3 mb-4">
@@ -251,7 +251,7 @@ const Profile = () => {
         <form onSubmit={handleSubmit} className="space-y-8">
           
           {/* Section 1: Technical Profile */}
-          <div className="rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.02] shadow-sm">
+          <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
             <div className="p-5 md:p-6 bg-zinc-50/50 dark:bg-black/20 border-b border-zinc-200 dark:border-white/10">
               <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Technical Profile</h3>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Define your core competencies and experience level.</p>
@@ -309,7 +309,7 @@ const Profile = () => {
           </div>
 
           {/* Section 2: Professional Details */}
-          <div className="rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.02] shadow-sm">
+          <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
             <div className="p-5 md:p-6 bg-zinc-50/50 dark:bg-black/20 border-b border-zinc-200 dark:border-white/10">
               <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Professional Details</h3>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Your rate and public profiles.</p>
@@ -350,7 +350,7 @@ const Profile = () => {
           </div>
 
           {/* Section 2.5: Portfolio Projects */}
-          <div className="rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.02] shadow-sm">
+          <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
             <div className="p-5 md:p-6 bg-zinc-50/50 dark:bg-black/20 border-b border-zinc-200 dark:border-white/10 flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Portfolio Projects</h3>
@@ -413,7 +413,7 @@ const Profile = () => {
           </div>
 
           {/* Section 3: Data Sources */}
-          <div className="rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.02] shadow-sm">
+          <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
             <div className="p-5 md:p-6 bg-zinc-50/50 dark:bg-black/20 border-b border-zinc-200 dark:border-white/10 flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Active Data Sources</h3>

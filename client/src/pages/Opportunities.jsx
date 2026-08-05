@@ -111,19 +111,19 @@ const Opportunities = () => {
           placeholder="Semantic Search (e.g. 'Looking for easy react projects paying over $50')"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-2xl pl-12 pr-32 py-4 text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-zinc-400 shadow-sm text-base"
+          className="w-full bg-white border border-zinc-200 rounded-2xl pl-12 pr-32 py-4 text-zinc-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-zinc-400 shadow-sm text-base"
         />
         <button 
           type="submit"
-          className="absolute right-2 top-2 bottom-2 bg-blue-500 text-white px-6 rounded-xl font-bold hover:bg-blue-600 transition-colors active:scale-95 flex items-center gap-2"
+          className="absolute right-2 top-2 bottom-2 bg-zinc-900 hover:bg-zinc-800 text-white px-6 rounded-xl font-semibold transition-all active:scale-95 flex items-center gap-2"
         >
           Search
         </button>
       </form>
 
       {/* Quick Scan Section */}
-      <div className="p-1 rounded-2xl bg-gradient-to-r from-emerald-500/20 via-blue-500/20 to-emerald-500/20">
-        <div className="bg-white dark:bg-zinc-900 rounded-xl p-5 md:p-6 shadow-xl relative overflow-hidden">
+      <div className="rounded-2xl border border-zinc-200 bg-white">
+        <div className="p-5 md:p-6 relative overflow-hidden rounded-[15px] border-none">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mt-32 -mr-32 pointer-events-none"></div>
           <div className="relative z-10">
             <h3 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2 mb-2">
@@ -181,9 +181,7 @@ const Opportunities = () => {
       ) : (
         <div className="grid grid-cols-1 gap-6">
           {opportunities.map((op) => (
-            <div key={op._id} className="rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.02] shadow-sm flex flex-col md:flex-row group hover:border-emerald-500/30 dark:hover:border-emerald-500/30 transition-all duration-300 relative">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mt-32 -mr-32 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-              
+            <div key={op._id} className="bg-white border border-zinc-200 rounded-2xl shadow-sm flex flex-col md:flex-row group transition-all duration-300 hover:border-zinc-300 relative">
               <div className="flex-1 p-6 md:p-8 space-y-5 relative z-10">
                 <div className="flex justify-between items-start">
                   <div>

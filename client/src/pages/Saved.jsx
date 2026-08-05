@@ -11,17 +11,17 @@ const KanbanColumn = ({ title, icon: Icon, count, color, children }) => {
   };
   
   return (
-    <div className="flex flex-col h-full rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.02] shadow-sm">
-      <div className="p-4 md:p-5 bg-zinc-50/50 dark:bg-black/20 border-b border-zinc-200 dark:border-white/10 flex items-center justify-between">
+    <div className="flex flex-col h-full bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+      <div className="p-4 md:p-5 bg-zinc-50 border-b border-zinc-200 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className={`p-2 rounded-lg border ${colorMap[color]}`}>
             <Icon size={16} />
           </div>
           <h3 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">{title}</h3>
         </div>
-        <span className="text-xs font-bold bg-zinc-200 dark:bg-white/10 text-zinc-600 dark:text-zinc-300 px-2.5 py-1 rounded-md">{count}</span>
+        <span className="text-xs font-bold bg-zinc-200 text-zinc-600 px-2.5 py-1 rounded-md">{count}</span>
       </div>
-      <div className="flex-1 p-4 space-y-4 overflow-y-auto min-h-[500px] bg-zinc-50/30 dark:bg-transparent">
+      <div className="flex-1 p-4 space-y-4 overflow-y-auto min-h-[500px] bg-zinc-50/30">
         {children}
       </div>
     </div>
@@ -29,7 +29,7 @@ const KanbanColumn = ({ title, icon: Icon, count, color, children }) => {
 };
 
 const JobCard = ({ title, company, budget, date, url }) => (
-  <div className="p-4 rounded-xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-black/40 shadow-sm hover:border-blue-500/30 dark:hover:border-blue-500/30 transition-all duration-300 cursor-grab group">
+  <div className="p-4 rounded-xl bg-white border border-zinc-200 hover:border-zinc-300 transition-all duration-300 cursor-grab group shadow-sm">
     <div className="flex justify-between items-start mb-2">
       <h4 className="text-sm font-bold text-zinc-900 dark:text-white leading-snug group-hover:text-blue-500 transition-colors">{title}</h4>
       <a href={url} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-blue-500 transition-colors">

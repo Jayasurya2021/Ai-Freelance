@@ -15,48 +15,46 @@ const fetchStats = async () => {
 
 const StatCard = ({ title, value, icon: Icon, trend, color = 'emerald' }) => {
   const colorMap = {
-    emerald: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20 group-hover:border-emerald-500/30',
-    blue: 'text-blue-500 bg-blue-500/10 border-blue-500/20 group-hover:border-blue-500/30',
-    purple: 'text-purple-500 bg-purple-500/10 border-purple-500/20 group-hover:border-purple-500/30',
-    orange: 'text-orange-500 bg-orange-500/10 border-orange-500/20 group-hover:border-orange-500/30',
+    emerald: 'text-emerald-600 bg-emerald-50',
+    blue: 'text-blue-600 bg-blue-50',
+    purple: 'text-purple-600 bg-purple-50',
+    orange: 'text-orange-600 bg-orange-50',
+    yellow: 'text-amber-500 bg-amber-50',
   };
   
   const classes = colorMap[color] || colorMap.emerald;
-  const textColor = classes.split(' ')[0];
-  const bgColor = classes.split(' ')[1];
-  const borderColor = classes.split(' ')[2];
   
   return (
-    <div className={`rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.02] shadow-sm p-6 relative group transition-all duration-300 hover:-translate-y-1 hover:shadow-md`}>
-      <div className="flex items-center justify-between relative z-10">
-        <div>
-          <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{title}</p>
-          <p className="text-3xl font-bold mt-2 text-zinc-900 dark:text-white tracking-tight">{value}</p>
+    <div className="bg-white border border-zinc-200 rounded-2xl p-6 flex flex-col justify-between min-h-[140px] shadow-sm">
+      <div className="flex items-center gap-3">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${classes}`}>
+          <Icon size={18} strokeWidth={2.5} />
         </div>
-        <div className={`p-3 rounded-xl border ${bgColor} ${borderColor} group-hover:scale-110 transition-all duration-300`}>
-          <Icon className={textColor} size={24} />
-        </div>
+        <p className="text-sm font-semibold text-zinc-800">{title}</p>
       </div>
-      {trend && (
-        <div className="mt-4 flex items-center text-sm relative z-10">
-          <span className={`font-bold px-2 py-0.5 rounded-md border ${bgColor} ${borderColor} ${textColor}`}>{trend}</span>
-          <span className="text-zinc-500 dark:text-zinc-400 ml-2 font-medium">from last week</span>
-        </div>
-      )}
-      <div className={`absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 ${bgColor} rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-all duration-500 pointer-events-none`}></div>
+      <div className="mt-3">
+        <p className="text-3xl font-semibold text-zinc-900">{value}</p>
+      </div>
+      <div className="mt-2 text-xs font-medium text-emerald-600">
+        0% <span className="text-zinc-400 font-normal">vs yesterday</span>
+      </div>
     </div>
   );
 };
 
 const EmptyState = () => (
   <div className="flex flex-col items-center justify-center p-8 text-center h-full">
-    <div className="w-16 h-16 bg-blue-500/10 border border-blue-500/20 rounded-full flex items-center justify-center mb-4">
-      <Inbox className="text-blue-500" size={32} />
+    <div className="w-16 h-16 bg-zinc-100 rounded-xl flex items-center justify-center mb-6 relative">
+      <div className="absolute top-0 w-full flex justify-between px-2 -mt-1"><div className="w-1 h-1 bg-zinc-300 rounded-full"></div><div className="w-1 h-1 bg-zinc-300 rounded-full"></div></div>
+      <Inbox className="text-zinc-400" size={28} />
     </div>
-    <h4 className="text-zinc-900 dark:text-white font-semibold text-lg">No matching opportunities found</h4>
-    <p className="text-zinc-500 text-sm mt-2 max-w-sm">
+    <h4 className="text-zinc-900 dark:text-white font-semibold text-lg">No matching opportunities<br/>found</h4>
+    <p className="text-zinc-500 text-sm mt-3 max-w-[250px] leading-relaxed">
       Jarvis hasn't found any real opportunities yet. Import a URL or wait for the RSS feed to sync.
     </p>
+    <button className="mt-6 border border-zinc-200 text-zinc-700 font-semibold text-sm px-5 py-2 rounded-lg hover:bg-zinc-50 transition-colors flex items-center gap-2">
+      Inspect a URL <ExternalLink size={14} />
+    </button>
   </div>
 );
 
@@ -95,44 +93,103 @@ const Dashboard = () => {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 tracking-tight">Overview</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">Here's a summary of your freelance pipeline today.</p>
+          <h1 className="text-3xl md:text-4xl font-semibold text-zinc-900 dark:text-white tracking-tight font-serif-heading">Overview</h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">Here's a snapshot of your freelance pipeline.</p>
         </div>
-        <button className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:from-blue-500 hover:to-blue-400 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-95">
+        <button className="flex items-center justify-center gap-2 bg-zinc-900 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-zinc-800 transition-all active:scale-95 shadow-sm">
           Run Analysis
           <Zap size={16} />
         </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        <StatCard title="New Leads Today" value={stats ? stats.todaysCount : '-'} icon={Target} color="blue" />
-        <StatCard title="High Match" value={stats ? stats.highMatchCount : '-'} icon={Zap} color="emerald" />
-        <StatCard title="Applied" value={stats ? stats.appliedCount : '-'} icon={Activity} color="purple" />
-        <StatCard title="Saved" value={stats ? stats.savedCount : '-'} icon={BookmarkCheck} color="orange" />
+        <StatCard title="New Leads Today" value={stats ? stats.todaysCount : '0'} icon={TrendingUp} color="emerald" />
+        <StatCard title="High Match" value={stats ? stats.highMatchCount : '0'} icon={Zap} color="yellow" />
+        <StatCard title="Applied" value={stats ? stats.appliedCount : '0'} icon={Activity} color="blue" />
+        <StatCard title="Saved" value={stats ? stats.savedCount : '0'} icon={Bookmark} color="purple" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.02] shadow-sm flex flex-col relative h-[400px]">
-          <div className="p-5 md:p-6 bg-zinc-50/50 dark:bg-black/20 border-b border-zinc-200 dark:border-white/10 flex items-center justify-between">
-             <h3 className="text-lg font-semibold text-zinc-900 dark:text-white tracking-tight">Pipeline Analytics</h3>
-             <select className="bg-transparent border border-zinc-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-               <option className="dark:bg-zinc-900">Last 7 Days</option>
-               <option className="dark:bg-zinc-900">Last 30 Days</option>
-             </select>
+        <div className="lg:col-span-2 space-y-6 flex flex-col h-full">
+          <div className="glass-card flex flex-col relative h-[400px]">
+            <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-zinc-900 dark:text-white tracking-tight">Pipeline Analytics</h3>
+              <div className="flex items-center gap-2 border border-zinc-200 dark:border-white/10 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-zinc-50 transition-colors">
+                <span className="text-sm font-medium text-zinc-700">Last 7 Days</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+            </div>
+            <div className="flex-1 m-6 flex flex-col items-center justify-center relative">
+              {/* Fake grid lines */}
+              <div className="absolute inset-0 flex flex-col justify-between">
+                {[4,3,2,1,0].map(n => (
+                  <div key={n} className="w-full border-b border-zinc-100 dark:border-white/5 flex items-end">
+                    <span className="absolute left-0 -translate-y-2 text-xs text-zinc-400 bg-white pr-2">{n}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="relative z-10 flex flex-col items-center mt-8">
+                <div className="w-12 h-12 bg-zinc-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
+                  <TrendingUp className="text-zinc-500" size={20} />
+                </div>
+                <p className="text-zinc-900 font-semibold text-sm">No data to display yet</p>
+                <p className="text-zinc-500 text-xs mt-1 text-center max-w-xs">Start applying to opportunities to see your pipeline metrics here.</p>
+              </div>
+            </div>
+            {/* Fake legend */}
+            <div className="flex justify-center gap-6 mb-6">
+               <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500"></span><span className="text-xs font-medium text-zinc-600">New Leads</span></div>
+               <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-amber-500"></span><span className="text-xs font-medium text-zinc-600">High Match</span></div>
+               <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-500"></span><span className="text-xs font-medium text-zinc-600">Applied</span></div>
+               <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500"></span><span className="text-xs font-medium text-zinc-600">Saved</span></div>
+            </div>
           </div>
-          <div className="flex-1 m-6 border-2 border-dashed border-zinc-200 dark:border-white/5 rounded-xl flex items-center justify-center bg-zinc-50/30 dark:bg-white/[0.01]">
-            <p className="text-zinc-400 dark:text-zinc-500 text-sm font-medium">Not enough data to render charts.</p>
+
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white tracking-tight mb-6">Activity Snapshot</h3>
+            <div className="grid grid-cols-4 gap-4 divide-x divide-zinc-100">
+              <div className="flex flex-col items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
+                  <Activity size={18} className="text-emerald-600" />
+                </div>
+                <p className="text-2xl font-bold text-zinc-900">0</p>
+                <p className="text-xs font-medium text-zinc-500 mt-1 uppercase tracking-wider">Viewed</p>
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
+                  <ExternalLink size={18} className="text-emerald-600" />
+                </div>
+                <p className="text-2xl font-bold text-zinc-900">0</p>
+                <p className="text-xs font-medium text-zinc-500 mt-1 uppercase tracking-wider">Clicked</p>
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
+                  <BookmarkCheck size={18} className="text-emerald-600" />
+                </div>
+                <p className="text-2xl font-bold text-zinc-900">0</p>
+                <p className="text-xs font-medium text-zinc-500 mt-1 uppercase tracking-wider">Applied</p>
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
+                  <Bookmark size={18} className="text-emerald-600" />
+                </div>
+                <p className="text-2xl font-bold text-zinc-900">0</p>
+                <p className="text-xs font-medium text-zinc-500 mt-1 uppercase tracking-wider">Saved</p>
+              </div>
+            </div>
           </div>
         </div>
         
-        <div className="rounded-2xl border border-zinc-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.02] shadow-sm flex flex-col h-[600px] lg:h-[800px]">
-          <div className="p-5 md:p-6 bg-zinc-50/50 dark:bg-black/20 border-b border-zinc-200 dark:border-white/10 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white tracking-tight">AI Curated Leads</h3>
-            <span className="px-3 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold border border-blue-500/20 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-              Live Feed
-            </span>
-          </div>
+        <div className="flex flex-col gap-6">
+          <div className="glass-card flex flex-col h-[520px]">
+            <div className="p-5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-zinc-900 dark:text-white tracking-tight">AI Curated Leads</h3>
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Live Feed
+              </span>
+            </div>
           
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {isLoading ? (
@@ -143,7 +200,7 @@ const Dashboard = () => {
               <EmptyState />
             ) : (
               opportunities.map((op) => (
-                <div key={op._id} className="block p-5 rounded-xl bg-zinc-50 dark:bg-black/20 border border-zinc-200 dark:border-white/5 hover:border-blue-500/30 dark:hover:bg-white/[0.03] transition-all duration-300 group relative">
+                <div key={op._id} className="block p-5 rounded-2xl glass hover:neo-glow dark:hover:bg-white/[0.05] transition-all duration-500 group relative cursor-pointer hover:-translate-y-1 hover:scale-[1.01]">
                   
                   {/* Top Bar: Title & Match Score */}
                   <div className="flex justify-between items-start mb-3">
@@ -202,6 +259,22 @@ const Dashboard = () => {
               ))
             )}
           </div>
+          </div>
+          
+          <div className="glass-card p-6 border border-zinc-200">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center">
+                <Zap size={16} className="text-zinc-700" />
+              </div>
+              <h3 className="font-semibold text-zinc-900">Let AI do the heavy lifting</h3>
+            </div>
+            <p className="text-sm text-zinc-600 leading-relaxed mb-4">
+              Inspect job URLs, get match scores and let Jarvis find the best opportunities for you.
+            </p>
+            <button className="bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2 transition-colors">
+              Inspect Job URL <ExternalLink size={14} />
+            </button>
+        </div>
         </div>
       </div>
     </div>
@@ -209,4 +282,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
