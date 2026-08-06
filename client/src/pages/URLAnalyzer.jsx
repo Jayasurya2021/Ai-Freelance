@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Search, Loader2 } from 'lucide-react';
 import AnalyzerDashboard from '../components/AnalyzerDashboard';
+import { useProfileMode } from '../context/ProfileContext';
 
 const URLAnalyzer = () => {
+    const { profileMode } = useProfileMode();
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
@@ -37,7 +39,7 @@ const URLAnalyzer = () => {
                 <div>
                     <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white tracking-tight">AI URL Analyzer</h1>
                     <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">
-                        Paste any job or freelance opportunity URL below to instantly see your match score and recommendations.
+                        Paste any {profileMode === 'freelance' ? 'freelance' : 'job'} opportunity URL below to instantly see your match score and recommendations.
                     </p>
                 </div>
             </div>
@@ -52,7 +54,7 @@ const URLAnalyzer = () => {
                             type="url" 
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
-                            placeholder="https://www.upwork.com/freelance-jobs/..."
+                            placeholder={profileMode === 'job' ? "https://www.linkedin.com/jobs/view/..." : "https://www.upwork.com/freelance-jobs/..."}
                             className="w-full p-4 pl-3 outline-none text-base bg-transparent text-zinc-900 dark:text-white"
                             required
                         />

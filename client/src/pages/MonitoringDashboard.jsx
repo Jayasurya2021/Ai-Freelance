@@ -84,8 +84,32 @@ const MonitoringDashboard = () => {
                     <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-4">
                         <Clock size={24} />
                     </div>
-                    <span className="text-sm font-semibold text-zinc-500 uppercase tracking-wider">Interval</span>
-                    <strong className="text-2xl mt-1 text-zinc-900">{settings?.intervalMinutes || 60} mins</strong>
+                    <span className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-2">Check Interval</span>
+                    <select 
+                        value={settings?.intervalMinutes || 60}
+                        onChange={async (e) => {
+                            if (!settings) return;
+                            const newInterval = parseInt(e.target.value);
+                            try {
+                                const token = localStorage.getItem('token');
+                                const updated = await axios.post(`${import.meta.env.VITE_API_URL}/api/monitoring/settings`, {
+                                    intervalMinutes: newInterval
+                                }, { headers: { Authorization: `Bearer ${token}` } });
+                                setSettings(updated.data);
+                            } catch (err) {
+                                console.error("Failed to update interval", err);
+                            }
+                        }}
+                        className="p-2 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 bg-zinc-50 outline-none focus:border-emerald-500 cursor-pointer"
+                    >
+                        <option value={15}>15 mins</option>
+                        <option value={30}>30 mins</option>
+                        <option value={60}>1 hour</option>
+                        <option value={180}>3 hours</option>
+                        <option value={360}>6 hours</option>
+                        <option value={720}>12 hours</option>
+                        <option value={1440}>24 hours</option>
+                    </select>
                 </div>
                 <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm flex flex-col items-center text-center">
                     <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center mb-4">

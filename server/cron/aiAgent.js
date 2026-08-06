@@ -47,7 +47,7 @@ const runForUser = async (userId) => {
                         continue;
                     }
 
-                    const analysis = await matchingService.analyzeAndMatch(userId, item.content, userProfile);
+                    const analysis = await matchingService.analyzeAndMatch(userId, item.content, userProfile, userProfile.activeProfileMode);
                     
                     const opportunity = new Opportunity({
                         title: item.title,
@@ -112,12 +112,20 @@ const runForUser = async (userId) => {
 const startAgent = () => {
     console.log('🤖 Advanced Monitoring Engine Initialized.');
     
-    // Check every hour (simplified for demo, in production we might check per-user intervals)
-    cron.schedule('0 * * * *', async () => {
+    // Check every 15 minutes, but only run for users whose interval has elapsed
+    cron.schedule('*/15 * * * *', async () => {
         console.log('🤖 Monitoring Engine waking up...');
         const activeSettings = await SchedulerSettings.find({ enableMonitoring: true });
         
         for (const setting of activeSettings) {
+            // Respect user's interval setting
+            const lastLog = await MonitoringLog.findOne({ userId: setting.userId, status: 'success' }).sort({ startTime: -1 });
+            if (lastLog) {
+                const diffMinutes = (new Date() - new Date(lastLog.startTime)) / (1000 * 60);
+                if (diffMinutes < (setting.intervalMinutes || 60)) {
+                    continue; // Skip, interval hasn't elapsed
+                }
+            }
             await runForUser(setting.userId);
         }
         console.log('🤖 Monitoring Engine finished scan.');

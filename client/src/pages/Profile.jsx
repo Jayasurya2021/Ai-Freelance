@@ -22,6 +22,25 @@ const TagInput = ({ name, value, onChange, placeholder }) => {
     }
   };
 
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData('text');
+    if (pasteData) {
+      const pastedTags = pasteData.split(',').map(t => t.trim()).filter(Boolean);
+      const newTags = [...new Set([...tags, ...pastedTags])];
+      onChange({ target: { name, value: newTags } });
+      setInput('');
+    }
+  };
+
+  const handleBlur = () => {
+    if (input.trim()) {
+      const newTags = [...new Set([...tags, input.trim()])];
+      onChange({ target: { name, value: newTags } });
+      setInput('');
+    }
+  };
+
   const removeTag = (tagToRemove) => {
     const newTags = tags.filter(t => t !== tagToRemove);
     onChange({ target: { name, value: newTags } });
@@ -42,6 +61,8 @@ const TagInput = ({ name, value, onChange, placeholder }) => {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
+        onBlur={handleBlur}
         placeholder={tags.length === 0 ? placeholder : ''}
         className="flex-1 min-w-[120px] bg-transparent outline-none text-zinc-900 dark:text-white px-1 py-1 text-base placeholder:text-zinc-500"
       />
@@ -217,6 +238,7 @@ const Profile = () => {
                     <div className="md:col-span-2">
                         <select name="experience" value={freelanceProfile.experience} onChange={handleFreelanceChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 text-zinc-900 outline-none focus:border-emerald-500 cursor-pointer">
                             <option value="">Select Level...</option>
+                            <option value="Fresher">Fresher (0 years)</option>
                             <option value="Junior">Junior (0-2 years)</option>
                             <option value="Mid-level">Mid-level (3-5 years)</option>
                             <option value="Senior">Senior (5+ years)</option>
@@ -282,6 +304,7 @@ const Profile = () => {
                     <div className="md:col-span-2">
                         <select name="experience" value={jobProfile.experience} onChange={handleJobChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 text-zinc-900 outline-none focus:border-emerald-500 cursor-pointer">
                             <option value="">Select Level...</option>
+                            <option value="Fresher">Fresher</option>
                             <option value="Junior">Junior</option>
                             <option value="Mid-level">Mid-level</option>
                             <option value="Senior">Senior</option>
