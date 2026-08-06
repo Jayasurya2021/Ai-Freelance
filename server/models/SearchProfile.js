@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 
 const searchProfileSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile', required: true },
-    profileMode: { type: String, enum: ['freelance', 'job'], required: true },
     name: { type: String, required: true }, // e.g., "React Developer", "Ecommerce"
     keywords: { type: [String], default: [] },
     technologies: { type: [String], default: [] },

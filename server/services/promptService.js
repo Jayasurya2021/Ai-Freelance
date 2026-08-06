@@ -36,21 +36,17 @@ Your job is to return a JSON object with the following structure:
 Ensure that you NEVER return just a number. Always explain why using the strengths and weaknesses fields. Ensure the output is strictly valid JSON without any markdown formatting wrappers or extra text.`;
 };
 
-exports.buildUserContext = (textToAnalyze, userProfile, profileMode = 'freelance', portfolios = [], resumes = []) => {
-    // Select the correct sub-profile based on mode
-    const activeSubProfile = profileMode === 'freelance' 
-        ? userProfile.freelanceProfile || userProfile 
-        : userProfile.jobProfile || userProfile;
+exports.buildUserContext = (textToAnalyze, userProfile, portfolios = [], resumes = []) => {
+    const activeSubProfile = userProfile;
 
     const portfolioList = portfolios.map(p => `ID: ${p._id} | Title: ${p.title} | Tech: ${p.technologies.join(',')}`).join('\n');
     const resumeList = resumes.map(r => `ID: ${r._id} | Title: ${r.title} | Roles: ${r.targetedRoles.join(',')}`).join('\n');
 
     return `
-You are analyzing an opportunity in ${profileMode.toUpperCase()} mode.
-Do not cross-contaminate job and freelance criteria.
+You are analyzing a freelance opportunity.
 Pay attention to the user's career goals: ${activeSubProfile.careerGoals?.join(', ') || 'None specified'}.
 
-USER PROFILE (${profileMode.toUpperCase()}):
+USER PROFILE:
 Skills: ${activeSubProfile.skills?.join(', ') || 'None specified'}
 Experience: ${activeSubProfile.experience || 'Not specified'}
 Preferred Technologies: ${activeSubProfile.preferredTechnologies?.join(', ') || 'None specified'}
@@ -62,15 +58,8 @@ ${portfolioList || 'None available'}
 Resumes:
 ${resumeList || 'None available'}
 
-${profileMode === 'freelance' ? `
 Hourly Rate: $${activeSubProfile.hourlyRate}
 Client Preferences: ${activeSubProfile.preferredIndustries?.join(', ')}
-` : `
-Expected Salary Range: ${activeSubProfile.salaryRangeMin} - ${activeSubProfile.salaryRangeMax} LPA
-Work Mode: ${activeSubProfile.workMode || 'Not specified'}
-Employment Type: ${activeSubProfile.employmentType || 'Not specified'}
-Preferred Roles: ${activeSubProfile.preferredRoles?.join(', ') || 'Not specified'}
-`}
 
 OPPORTUNITY TEXT:
 ${textToAnalyze}
