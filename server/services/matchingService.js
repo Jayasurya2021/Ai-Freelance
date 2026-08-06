@@ -8,7 +8,7 @@ exports.analyzeAndMatch = async (userId, opportunityText, userProfile, profileMo
         const portfolios = await Portfolio.find({ userId, profileMode });
         const resumes = await Resume.find({ userId, profileMode });
 
-        const systemPrompt = promptService.getSystemPrompt(profileMode);
+        const systemPrompt = promptService.getAnalyzerPrompt();
         const userPrompt = promptService.buildUserContext(opportunityText, userProfile, profileMode, portfolios, resumes);
     
         // Calls the AI Provider configured by the user

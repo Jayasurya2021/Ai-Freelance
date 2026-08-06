@@ -66,8 +66,10 @@ ${profileMode === 'freelance' ? `
 Hourly Rate: $${activeSubProfile.hourlyRate}
 Client Preferences: ${activeSubProfile.preferredIndustries?.join(', ')}
 ` : `
-Expected Salary: $${activeSubProfile.expectedSalary}
-Remote Preference: ${activeSubProfile.remotePreference ? 'Yes' : 'No'}
+Expected Salary Range: ${activeSubProfile.salaryRangeMin} - ${activeSubProfile.salaryRangeMax} LPA
+Work Mode: ${activeSubProfile.workMode || 'Not specified'}
+Employment Type: ${activeSubProfile.employmentType || 'Not specified'}
+Preferred Roles: ${activeSubProfile.preferredRoles?.join(', ') || 'Not specified'}
 `}
 
 OPPORTUNITY TEXT:
