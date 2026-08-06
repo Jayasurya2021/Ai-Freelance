@@ -23,7 +23,7 @@ exports.analyze = async (userId, systemPrompt, userPrompt) => {
             modelName = settings.openaiModel || 'gpt-4o';
         } else if (provider === 'groq') {
             apiKey = cryptoService.decrypt(settings.groqKey) || process.env.GROQ_API_KEY;
-            modelName = settings.groqModel || 'llama3-8b-8192';
+            modelName = settings.groqModel || 'llama-3.1-8b-instant';
         }
     } else if (provider === 'openai') {
         apiKey = process.env.OPENAI_API_KEY;

@@ -10,7 +10,7 @@ exports.analyze = async (apiKey, modelName, systemPrompt, userPrompt) => {
 
     try {
         const response = await client.chat.completions.create({
-            model: modelName || "llama3-8b-8192",
+            model: modelName || "llama-3.1-8b-instant",
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt }

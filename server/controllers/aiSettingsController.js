@@ -78,7 +78,7 @@ exports.testConnection = async (req, res) => {
 
         // Try Groq
         if (groqKey) {
-            const groqResult = await aiProvider.testConnection('groq', groqKey, 'llama3-8b-8192');
+            const groqResult = await aiProvider.testConnection('groq', groqKey, 'llama-3.1-8b-instant');
             if (groqResult.status === 'error') {
                 errorMessages.push(`Groq Failed: ${groqResult.message}`);
             } else {
