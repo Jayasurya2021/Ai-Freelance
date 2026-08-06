@@ -41,3 +41,33 @@ exports.extractFromRss = async (feedUrl) => {
         throw new Error("Unable to extract content from this RSS feed.");
     }
 };
+
+exports.extractFromApi = async (apiUrl) => {
+    try {
+        const { data } = await axios.get(apiUrl, {
+            headers: { 'Accept': 'application/json' }
+        });
+        
+        // Handle cases where data is not an array directly (e.g. data.jobs, data.results)
+        let items = Array.isArray(data) ? data : (data.jobs || data.results || data.data || []);
+        
+        if (!Array.isArray(items)) {
+             // If we still can't find an array, try treating the whole object as one item if it has title/description
+             if (data.title || data.name) {
+                 items = [data];
+             } else {
+                 items = [];
+             }
+        }
+
+        return items.map(item => ({
+            title: item.title || item.name || item.position || 'API Job',
+            content: JSON.stringify(item), // Serialize the whole object so AI can extract the fields later
+            originalUrl: item.url || item.link || apiUrl,
+            company: item.company || 'Unknown'
+        }));
+    } catch (error) {
+        console.error(`Error extracting from API ${apiUrl}:`, error.message);
+        throw new Error("Unable to extract content from this API.");
+    }
+};

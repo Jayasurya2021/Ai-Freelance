@@ -2,13 +2,13 @@ const Parser = require('rss-parser');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const aiService = require('./aiService');
-const Opportunity = require('../models/Opportunity');
+const Job = require('../models/Job');
 const Profile = require('../models/Profile');
 
 const parser = new Parser();
 
 /**
- * Fetches and processes an RSS feed for opportunities.
+ * Fetches and processes an RSS feed for jobs.
  * @param {string} feedUrl - The RSS URL
  * @param {string} sourceName - Name of the source (e.g., WeWorkRemotely)
  * @param {string} platform - Platform name
@@ -23,11 +23,11 @@ exports.ingestRSSFeed = async (feedUrl, sourceName, platform, userId) => {
         if (!userProfile) throw new Error("User profile not found for AI matching");
 
         let ingestedCount = 0;
-        const newOpportunities = [];
+        const newJobs = [];
 
         for (const item of feed.items) {
-            // Check if it already exists to avoid duplicates
-            const existing = await Opportunity.findOne({ originalUrl: item.link });
+            // Check if it already exists to avoid duplicates per user
+            const existing = await Job.findOne({ originalUrl: item.link, userId });
             if (existing) continue;
 
             const textToAnalyze = `${item.title}\n\n${item.contentSnippet || item.content}`;
@@ -45,30 +45,28 @@ exports.ingestRSSFeed = async (feedUrl, sourceName, platform, userId) => {
             const embedding = await aiService.generateEmbedding(textToAnalyze);
 
             // 3. Save to DB
-            const opportunity = new Opportunity({
+            const job = new Job({
                 userId: userId,
-                profileMode: userProfile.activeProfileMode || 'freelance',
-                title: item.title,
+                title: analysis.title || item.title,
                 description: item.contentSnippet || item.content || 'No description available.',
                 sourceName,
                 originalUrl: item.link,
-                publishedDate: item.pubDate ? new Date(item.pubDate) : new Date(),
-                company: item.creator || 'Unknown',
+                postedDate: item.pubDate ? new Date(item.pubDate) : new Date(),
                 platform,
                 
-                ...analysis, // Spread the AI JSON (matchScore, missingSkills, etc)
+                ...analysis, // Spread the AI JSON
                 embedding
             });
 
-            await opportunity.save();
-            newOpportunities.push(opportunity);
+            await job.save();
+            newJobs.push(job);
             ingestedCount++;
             
             // Artificial delay to prevent hitting Gemini rate limits on bulk ingests
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
         
-        return { success: true, ingested: ingestedCount, opportunities: newOpportunities };
+        return { success: true, ingested: ingestedCount, jobs: newJobs };
     } catch (error) {
         console.error("RSS Ingestion Error:", error);
         throw error;
@@ -92,24 +90,78 @@ exports.ingestUrl = async (url, sourceName, platform, userId) => {
         const analysis = await aiService.analyzeOpportunity(textToAnalyze, userProfile);
         const embedding = await aiService.generateEmbedding(textToAnalyze);
 
-        const opportunity = new Opportunity({
+        const job = new Job({
             userId: userId,
-            profileMode: userProfile.activeProfileMode || 'freelance',
-            title: $('title').text() || 'Imported Opportunity',
-            description: textToAnalyze.substring(0, 500) + '...', // Store a snippet
+            title: analysis.title || $('title').text() || 'Imported Job',
+            description: textToAnalyze.substring(0, 1000) + '...', // Store a snippet
             sourceName,
             originalUrl: url,
-            publishedDate: new Date(),
+            postedDate: new Date(),
             platform,
             ...analysis,
             embedding
         });
 
-        await opportunity.save();
-        return { success: true, opportunity };
+        await job.save();
+        return { success: true, job };
 
     } catch (error) {
         console.error("URL Ingestion Error:", error);
+        throw error;
+    }
+};
+
+/**
+ * Fetches and processes an API JSON feed for jobs.
+ */
+exports.ingestApi = async (apiUrl, sourceName, platform, userId) => {
+    try {
+        console.log(`Fetching API feed: ${apiUrl}`);
+        const collectorService = require('./collectorService');
+        const items = await collectorService.extractFromApi(apiUrl);
+        
+        const userProfile = await Profile.findById(userId);
+        if (!userProfile) throw new Error("User profile not found for AI matching");
+
+        let ingestedCount = 0;
+        const newJobs = [];
+
+        for (const item of items) {
+            const existing = await Job.findOne({ originalUrl: item.originalUrl, userId });
+            if (existing) continue;
+
+            let analysis = {};
+            try {
+                analysis = await aiService.analyzeOpportunity(item.content, userProfile);
+            } catch (err) {
+                console.error("Analysis failed for API item, skipping...", item.originalUrl);
+                continue;
+            }
+
+            const embedding = await aiService.generateEmbedding(item.content);
+
+            const job = new Job({
+                userId: userId,
+                title: analysis.title || item.title,
+                description: item.content,
+                sourceName,
+                originalUrl: item.originalUrl,
+                postedDate: new Date(),
+                platform,
+                ...analysis,
+                embedding
+            });
+
+            await job.save();
+            newJobs.push(job);
+            ingestedCount++;
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        return { success: true, ingested: ingestedCount, jobs: newJobs };
+    } catch (error) {
+        console.error("API Ingestion Error:", error);
         throw error;
     }
 };

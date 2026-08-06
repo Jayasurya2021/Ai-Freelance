@@ -15,4 +15,6 @@ const sourceSchema = new mongoose.Schema({
     timestamps: true
 });
 
+sourceSchema.index({ status: 1 });
+
 module.exports = mongoose.model('Source', sourceSchema);

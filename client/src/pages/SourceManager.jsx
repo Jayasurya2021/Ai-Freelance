@@ -101,7 +101,8 @@ const SourceManager = () => {
                         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Source Type</label>
                         <select value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})} className="w-full p-3 border rounded-xl bg-zinc-50/50 dark:bg-white/5 border-zinc-200 dark:border-white/10 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-zinc-900 dark:text-white">
                             <option value="rss">RSS Feed</option>
-                            <option value="url">Single URL</option>
+                            <option value="url">Web Crawl (Career Page)</option>
+                            <option value="api">JSON API Endpoint</option>
                         </select>
                     </div>
                     <div className="md:col-span-2">

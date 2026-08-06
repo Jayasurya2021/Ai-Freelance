@@ -18,6 +18,16 @@ exports.addSource = async (req, res) => {
             name, type, url, intervalMinutes
         });
         await source.save();
+        
+        // Asynchronously trigger ingestion for the new source
+        // Do not await this so it runs in the background
+        const ingestionService = require('../services/ingestionService');
+        if (type === 'rss') {
+            ingestionService.ingestRSSFeed(url, name, 'RSS', req.user.id).catch(err => console.error("Auto-ingest RSS failed", err));
+        } else if (type === 'url') {
+            ingestionService.ingestUrl(url, name, 'Web', req.user.id).catch(err => console.error("Auto-ingest URL failed", err));
+        }
+        
         res.status(201).json(source);
     } catch (err) {
         res.status(500).json({ message: "Failed to add source", error: err.message });
@@ -58,6 +68,8 @@ exports.testSource = async (req, res) => {
         } else if (type === 'url') {
             const item = await collectorService.extractFromUrl(url);
             items = [item];
+        } else if (type === 'api') {
+            items = await collectorService.extractFromApi(url);
         } else {
             return res.status(400).json({ message: "Invalid source type" });
         }

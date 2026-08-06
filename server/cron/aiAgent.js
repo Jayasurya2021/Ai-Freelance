@@ -1,21 +1,16 @@
 const cron = require('node-cron');
 const Profile = require('../models/Profile');
 const Notification = require('../models/Notification');
-const Opportunity = require('../models/Opportunity');
 const Source = require('../models/Source');
 const MonitoringLog = require('../models/MonitoringLog');
 const SchedulerSettings = require('../models/SchedulerSettings');
-const collectorService = require('../services/collectorService');
-const duplicateDetectionService = require('../services/duplicateDetectionService');
-const matchingService = require('../services/matchingService');
-const discoveryService = require('../services/discoveryService');
+const ingestionService = require('../services/ingestionService');
 
 const runForUser = async (userId) => {
     const startTime = new Date();
     let sourcesChecked = 0;
     let opportunitiesFound = 0;
     let duplicatesSkipped = 0;
-    let notificationsSent = 0;
     
     try {
         const userProfile = await Profile.findById(userId);
@@ -24,55 +19,32 @@ const runForUser = async (userId) => {
         const settings = await SchedulerSettings.findOne({ userId }) || { minimumMatchScore: 70, enableMonitoring: true };
         if (!settings.enableMonitoring) return;
 
-        // Trigger Phase 4 AI Discovery Engine to proactively find new URLs and dump them into the Queue
-        await discoveryService.runDiscovery(userId, userProfile);
-
-        // Standard Phase 2 Monitoring Engine logic continues...
         const sources = await Source.find({ userId, status: 'active' });
         
         for (const source of sources) {
             sourcesChecked++;
             try {
-                let extractedItems = [];
+                let result = { ingested: 0, jobs: [] };
+                
                 if (source.type === 'rss') {
-                    extractedItems = await collectorService.extractFromRss(source.url);
+                    result = await ingestionService.ingestRSSFeed(source.url, source.name, 'RSS', userId);
                 } else if (source.type === 'url') {
-                    extractedItems = [await collectorService.extractFromUrl(source.url)];
+                    const singleResult = await ingestionService.ingestUrl(source.url, source.name, 'Web', userId);
+                    if (singleResult.job) result = { ingested: 1, jobs: [singleResult.job] };
+                } else if (source.type === 'api') {
+                    result = await ingestionService.ingestApi(source.url, source.name, 'API', userId);
                 }
 
-                for (const item of extractedItems) {
-                    const isDuplicate = await duplicateDetectionService.isDuplicate(item.originalUrl);
-                    if (isDuplicate) {
-                        duplicatesSkipped++;
-                        continue;
-                    }
+                opportunitiesFound += result.ingested || 0;
 
-                    const analysis = await matchingService.analyzeAndMatch(userId, item.content, userProfile, userProfile.activeProfileMode);
-                    
-                    const opportunity = new Opportunity({
-                        userId: userId,
-                        profileMode: userProfile.activeProfileMode,
-                        title: item.title,
-                        description: item.content.substring(0, 500) + '...',
-                        sourceName: source.name,
-                        originalUrl: item.originalUrl,
-                        publishedDate: item.publishedDate,
-                        company: item.company,
-                        platform: source.type,
-                        ...analysis
-                    });
-
-                    await opportunity.save();
-                    opportunitiesFound++;
-
-                    if (opportunity.matchScore >= settings.minimumMatchScore) {
+                for (const job of (result.jobs || [])) {
+                    if (job.matchScore >= settings.minimumMatchScore) {
                         await Notification.create({
                             userId: userId,
-                            title: '🔥 High Match Opportunity Found!',
-                            message: `Match: ${opportunity.matchScore}%\nTitle: ${opportunity.title}\nRecommendation: ${opportunity.recommendationLevel}`,
-                            opportunityId: opportunity._id
+                            title: '🔥 High Match Job Found!',
+                            message: `Match: ${job.matchScore}%\nTitle: ${job.title}\nRecommendation: ${job.recommendation}`,
+                            opportunityId: job._id
                         });
-                        notificationsSent++;
                     }
                 }
                 
@@ -94,9 +66,7 @@ const runForUser = async (userId) => {
             endTime: new Date(),
             status: 'success',
             sourcesChecked,
-            opportunitiesFound,
-            duplicatesSkipped,
-            notificationsSent
+            opportunitiesFound
         });
         
     } catch (error) {
@@ -112,25 +82,24 @@ const runForUser = async (userId) => {
 };
 
 const startAgent = () => {
-    console.log('🤖 Advanced Monitoring Engine Initialized.');
+    console.log('🤖 AI Job Feed Engine Initialized.');
     
-    // Check every 15 minutes, but only run for users whose interval has elapsed
-    cron.schedule('*/15 * * * *', async () => {
-        console.log('🤖 Monitoring Engine waking up...');
+    // Check every 30 minutes
+    cron.schedule('*/30 * * * *', async () => {
+        console.log('🤖 Job Feed Engine waking up...');
         const activeSettings = await SchedulerSettings.find({ enableMonitoring: true });
         
         for (const setting of activeSettings) {
-            // Respect user's interval setting
             const lastLog = await MonitoringLog.findOne({ userId: setting.userId, status: 'success' }).sort({ startTime: -1 });
             if (lastLog) {
                 const diffMinutes = (new Date() - new Date(lastLog.startTime)) / (1000 * 60);
-                if (diffMinutes < (setting.intervalMinutes || 60)) {
-                    continue; // Skip, interval hasn't elapsed
+                if (diffMinutes < (setting.intervalMinutes || 30)) {
+                    continue; 
                 }
             }
             await runForUser(setting.userId);
         }
-        console.log('🤖 Monitoring Engine finished scan.');
+        console.log('🤖 Job Feed Engine finished scan.');
     });
 };
 

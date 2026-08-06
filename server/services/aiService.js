@@ -5,7 +5,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'MISSING_API_KEY');
 
 /**
- * Analyzes an opportunity against a user profile using Gemini.
+ * Analyzes a job opportunity against a user profile using Gemini.
  * @param {string} opportunityText - The raw text/description of the job.
  * @param {Object} userProfile - The user's profile object.
  * @returns {Promise<Object>} - The JSON analysis.
@@ -21,44 +21,53 @@ exports.analyzeOpportunity = async (opportunityText, userProfile) => {
         Experience: ${profile.experience || 'Not specified'}
         Rate/Salary: ${mode === 'freelance' ? profile.hourlyRate : profile.expectedSalary || 'Not specified'}
         Preferred Tech Stack: ${profile.preferredTechStack?.join(', ') || 'Not specified'}
-        Portfolio Projects: ${profile.portfolioProjects ? JSON.stringify(profile.portfolioProjects) : 'None'}
         Resume Context: ${profile.resumeText ? profile.resumeText.substring(0, 1000) : 'None'}
         ` : 'No profile data.';
 
         const prompt = `
-        You are an expert ${mode === 'freelance' ? 'freelance career' : 'job search'} copilot.
-        Analyze the following opportunity against the user's profile using deep semantic understanding, not just keyword matching.
+        You are an expert AI Career Copilot.
+        Extract detailed information from the following Job Description and analyze it against the User Profile.
         
-        User Profile (${mode} mode):
+        User Profile:
         ${profileContextStr}
         
-        Opportunity Text:
+        Job Description Text:
         """${opportunityText}"""
         
-        Calculate a match score (0-100) based on skill match, experience, tech stack, and category.
-        Decide a recommendation level: "Apply Immediately", "Good Opportunity", "Worth Considering", "Low Priority", or "Skip".
-        Recommend the BEST portfolio project to share for this specific job, if any.
+        Extract the following fields from the job description (if not found, use "Not specified" or empty arrays):
+        Job Title, Company, Location, Employment Type, Salary, Experience, Skills, Responsibilities, Preferred Skills, ATS Keywords, Benefits.
+        
+        Then, generate the following analysis:
+        Calculate a matchScore (0-100).
+        Choose a recommendation: "Apply", "Maybe", or "Skip".
+        Provide a recommendationReason.
+        List missingSkills the user lacks.
+        Provide learningSuggestions to bridge the gap.
+        Provide resumeSuggestions to tailor their resume for this job.
+        Generate a short coverLetterSummary (1 paragraph) they can use as a starting point.
+        Generate an aiSummary (1-2 sentences summarizing the job).
         
         Respond ONLY with a valid JSON object matching this schema exactly:
         {
-          "matchScore": number (0-100),
-          "matchReasons": [string, string] (List why it matches, starting with ✔),
-          "missingSkills": [string, string] (List skills the user lacks for this job),
-          "projectType": string (e.g., Ecommerce, Dashboard, Mobile App),
-          "industry": string,
-          "requiredSkills": [string, string],
-          "budget": string (Extract budget if present, else "Not specified"),
-          "timeline": string (Extract timeline if present, else "Not specified"),
-          "country": string (Extract country if present, else "Any/Remote"),
-          "difficulty": string (Beginner, Intermediate, Advanced),
-          "estimatedHours": string,
-          "recommendedPrice": string,
-          "scamRisk": string (Low, Medium, High),
-          "urgency": string (Low, Normal, High, ASAP),
-          "aiSummary": string (A short 1-2 sentence summary of the job),
-          "recommendationLevel": string (Apply Immediately, Good Opportunity, Worth Considering, Low Priority, Skip),
-          "recommendationReason": string (Explain why this level was chosen),
-          "portfolioRecommendation": string (Title of the best portfolio project to share, or "None")
+          "title": "string",
+          "company": "string",
+          "location": "string",
+          "employmentType": "string",
+          "salary": "string",
+          "experience": "string",
+          "skills": ["string", "string"],
+          "responsibilities": ["string", "string"],
+          "preferredSkills": ["string", "string"],
+          "atsKeywords": ["string", "string"],
+          "benefits": ["string", "string"],
+          "matchScore": number,
+          "recommendation": "Apply" | "Maybe" | "Skip",
+          "recommendationReason": "string",
+          "missingSkills": ["string", "string"],
+          "learningSuggestions": ["string", "string"],
+          "resumeSuggestions": ["string", "string"],
+          "coverLetterSummary": "string",
+          "aiSummary": "string"
         }
         `;
 

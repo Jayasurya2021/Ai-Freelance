@@ -40,6 +40,7 @@ app.get('/api/health', (req, res) => {
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
 const opportunityRoutes = require('./routes/opportunityRoutes');
+const jobRoutes = require('./routes/jobRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const aiSettingsRoutes = require('./routes/aiSettingsRoutes');
@@ -53,6 +54,7 @@ const resumeRoutes = require('./routes/resume.js');
 // Mount Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/opportunities', opportunityRoutes);
+app.use('/api/jobs', jobRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/settings/ai', aiSettingsRoutes);

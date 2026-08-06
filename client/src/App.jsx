@@ -14,7 +14,7 @@ import AISettings from './pages/AISettings';
 import URLAnalyzer from './pages/URLAnalyzer';
 import SourceManager from './pages/SourceManager';
 import MonitoringDashboard from './pages/MonitoringDashboard';
-import OpportunityFeed from './pages/OpportunityFeed';
+import JobFeed from './pages/JobFeed';
 import Watchlist from './pages/Watchlist';
 
 const queryClient = new QueryClient();
@@ -52,7 +52,7 @@ function App() {
               <Route path="url-analyzer" element={<URLAnalyzer />} />
               <Route path="sources" element={<SourceManager />} />
               <Route path="monitoring" element={<MonitoringDashboard />} />
-              <Route path="feed" element={<OpportunityFeed />} />
+              <Route path="feed" element={<JobFeed />} />
               <Route path="watchlist" element={<Watchlist />} />
             </Route>
             </Routes>
