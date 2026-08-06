@@ -51,7 +51,7 @@ exports.saveSettings = async (req, res) => {
 };
 
 exports.testConnection = async (req, res) => {
-    let { groqKey, geminiKey } = req.body;
+    let { groqKey, geminiKey, openaiKey } = req.body;
     try {
         const settings = await AISettings.findOne({ userId: req.user.id });
         
@@ -61,6 +61,9 @@ exports.testConnection = async (req, res) => {
         }
         if (!groqKey && settings?.groqKey) {
             groqKey = cryptoService.decrypt(settings.groqKey);
+        }
+        if (!openaiKey && settings?.openaiKey) {
+            openaiKey = cryptoService.decrypt(settings.openaiKey);
         }
 
         let successMessages = [];
@@ -83,6 +86,16 @@ exports.testConnection = async (req, res) => {
                 errorMessages.push(`Groq Failed: ${groqResult.message}`);
             } else {
                 successMessages.push("Groq Connected!");
+            }
+        }
+
+        // Try OpenAI
+        if (openaiKey) {
+            const openaiResult = await aiProvider.testConnection('openai', openaiKey, 'gpt-4o');
+            if (openaiResult.status === 'error') {
+                errorMessages.push(`OpenAI Failed: ${openaiResult.message}`);
+            } else {
+                successMessages.push("OpenAI Connected!");
             }
         }
 
