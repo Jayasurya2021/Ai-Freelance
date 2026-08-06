@@ -82,9 +82,9 @@ exports.getDailyBrief = async (req, res) => {
 };
 
 exports.recordLearningFeedback = async (req, res) => {
-    const { opportunityId, action, profileMode } = req.body;
+    const { opportunityId, action } = req.body;
     try {
-        console.log(`[AI LEARNING] User ${req.user.id} marked ${opportunityId} as ${action} in ${profileMode} mode.`);
+        console.log(`[AI LEARNING] User ${req.user.id} marked ${opportunityId} as ${action}.`);
         res.json({ success: true, message: "Feedback recorded for AI optimization." });
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
@@ -98,9 +98,8 @@ const aiProvider = require('../services/aiProvider');
 
 exports.getProfileCompleteness = async (req, res) => {
     try {
-        const mode = req.query.mode || 'freelance';
         const userProfile = await Profile.findById(req.user.id);
-        const result = profileCompletenessService.calculateCompleteness(userProfile, mode);
+        const result = profileCompletenessService.calculateCompleteness(userProfile, 'freelance');
         res.json(result);
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
@@ -109,8 +108,7 @@ exports.getProfileCompleteness = async (req, res) => {
 
 exports.getSearchPerformance = async (req, res) => {
     try {
-        const mode = req.query.mode || 'freelance';
-        const searchProfiles = await SearchProfile.find({ userId: req.user.id, profileMode: mode });
+        const searchProfiles = await SearchProfile.find({ userId: req.user.id });
         
         // In a full implementation, we would aggregate the Opportunity metrics mapped to these search profiles.
         // For now, we return the base search profiles to populate the analytics table.
@@ -122,7 +120,6 @@ exports.getSearchPerformance = async (req, res) => {
 
 exports.generateInsights = async (req, res) => {
     try {
-        const mode = req.query.mode || 'freelance';
         const userProfile = await Profile.findById(req.user.id);
         
         // Fetch last 7 days of opportunities to generate insights
@@ -130,12 +127,11 @@ exports.generateInsights = async (req, res) => {
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         const recentOpps = await Opportunity.find({ 
             userId: req.user.id, 
-            profileMode: mode, 
             createdAt: { $gte: oneWeekAgo } 
         });
 
         const prompt = `You are a Career Intelligence Engine. 
-The user is in ${mode.toUpperCase()} mode. 
+The user is freelancing. 
 They found ${recentOpps.length} opportunities this week.
 Based on their profile and this volume, generate a 1-sentence actionable insight.
 Example: "Your React opportunities increased by 22% this week, consider adding Next.js to your skills."`;

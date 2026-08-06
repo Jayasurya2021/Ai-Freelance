@@ -42,7 +42,7 @@ exports.runDiscovery = async (userId, userProfile) => {
         const searchProfiles = await SearchProfile.find({ userId, enabled: true });
 
         for (const profile of searchProfiles) {
-            console.log(`Processing Search Profile: ${profile.name} (${profile.profileMode})`);
+            console.log(`Processing Search Profile: ${profile.name}`);
             
             // 1. Semantic AI Expansion
             const expandedQueries = await this.expandSearchTerms(userProfile, profile);
@@ -52,7 +52,7 @@ exports.runDiscovery = async (userId, userProfile) => {
             // In a real scenario, this would query RSS aggregators, Google Custom Search API, Upwork RSS, etc.
             // using the `expandedQueries`.
             const mockDiscoveredUrls = expandedQueries.map(q => 
-                `https://example-jobs.com/search?q=${encodeURIComponent(q)}&mode=${profile.profileMode}&timestamp=${Date.now()}`
+                `https://example-jobs.com/search?q=${encodeURIComponent(q)}&timestamp=${Date.now()}`
             );
 
             // 3. Drop into Opportunity Queue

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { User, Code2, Briefcase, Globe, DollarSign, CheckCircle2, Zap, X, Settings, FileText, MapPin } from 'lucide-react';
+import { CheckCircle2, X, Settings, Briefcase } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AISettings from './AISettings';
 import SourceManager from './SourceManager';
@@ -18,25 +18,6 @@ const TagInput = ({ name, value, onChange, placeholder }) => {
         onChange({ target: { name, value: newTags } });
         setInput('');
       }
-    }
-  };
-
-  const handlePaste = (e) => {
-    e.preventDefault();
-    const pasteData = e.clipboardData.getData('text');
-    if (pasteData) {
-      const pastedTags = pasteData.split(',').map(t => t.trim()).filter(Boolean);
-      const newTags = [...new Set([...tags, ...pastedTags])];
-      onChange({ target: { name, value: newTags } });
-      setInput('');
-    }
-  };
-
-  const handleBlur = () => {
-    if (input.trim()) {
-      const newTags = [...new Set([...tags, input.trim()])];
-      onChange({ target: { name, value: newTags } });
-      setInput('');
     }
   };
 
@@ -60,8 +41,6 @@ const TagInput = ({ name, value, onChange, placeholder }) => {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
-        onPaste={handlePaste}
-        onBlur={handleBlur}
         placeholder={tags.length === 0 ? placeholder : ''}
         className="flex-1 min-w-[120px] bg-transparent outline-none text-zinc-900 dark:text-white px-1 py-1 text-base placeholder:text-zinc-500"
       />
@@ -71,18 +50,15 @@ const TagInput = ({ name, value, onChange, placeholder }) => {
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
-  const [activeTab, setActiveTab] = useState('global'); // 'global', 'freelance', 'job'
+  const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'settings'
   
-  const [globalSettings, setGlobalSettings] = useState({
-    notificationThreshold: 70
-  });
-
-  const [freelanceProfile, setFreelanceProfile] = useState({
-    skills: [], experience: '', hourlyRate: '', preferredTechStack: [], portfolioLink: '', githubLink: '', portfolioProjects: [], resumeText: ''
-  });
-
-  const [jobProfile, setJobProfile] = useState({
-    skills: [], experience: '', preferredRoles: [], preferredLocation: [], workMode: 'Remote', employmentType: 'Full-time', salaryRangeMin: '', salaryRangeMax: '', preferredTechStack: [], githubLink: '', resumeText: '', relocation: false
+  const [profileData, setProfileData] = useState({
+    notificationThreshold: 70,
+    skills: [],
+    experience: '',
+    hourlyRate: '',
+    preferredTechnologies: [],
+    portfolioProjects: [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -93,11 +69,14 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/profile`);
-        setGlobalSettings({
-          notificationThreshold: data.notificationThreshold || 70
+        setProfileData({
+          notificationThreshold: data.notificationThreshold || 70,
+          skills: data.skills || [],
+          experience: data.experience || '',
+          hourlyRate: data.hourlyRate || '',
+          preferredTechnologies: data.preferredTechnologies || [],
+          portfolioProjects: data.portfolioProjects || []
         });
-        if (data.freelanceProfile) setFreelanceProfile(data.freelanceProfile);
-        if (data.jobProfile) setJobProfile(data.jobProfile);
       } catch (err) {
         console.error('Failed to fetch profile', err);
       }
@@ -105,11 +84,8 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
-  const handleGlobalChange = (e) => { setGlobalSettings({ ...globalSettings, [e.target.name]: e.target.value }); setHasChanges(true); };
-  const handleFreelanceChange = (e) => { setFreelanceProfile({ ...freelanceProfile, [e.target.name]: e.target.value }); setHasChanges(true); };
-  const handleJobChange = (e) => {
-    const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-    setJobProfile({ ...jobProfile, [e.target.name]: val });
+  const handleChange = (e) => {
+    setProfileData({ ...profileData, [e.target.name]: e.target.value });
     setHasChanges(true);
   };
 
@@ -118,13 +94,7 @@ const Profile = () => {
     setLoading(true);
     setMessage('');
     try {
-      const updates = {
-        notificationThreshold: globalSettings.notificationThreshold,
-        freelanceProfile,
-        jobProfile
-      };
-      
-      const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/api/profile`, updates);
+      const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/api/profile`, profileData);
       updateUser(data.profile);
       setMessage('Profile updated successfully!');
       setHasChanges(false);
@@ -138,12 +108,11 @@ const Profile = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white tracking-tight">Agent Profile</h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">
-            Configure your Global, Freelance, and Job profiles for hyper-personalized AI recommendations.
+            Configure your Freelance profile for AI-curated opportunities.
           </p>
         </div>
       </div>
@@ -155,43 +124,92 @@ const Profile = () => {
         </motion.div>
       )}
 
-      {/* Tabs */}
       <div className="flex border-b border-zinc-200 gap-6">
         <button 
             type="button"
-            onClick={() => setActiveTab('global')}
-            className={`pb-4 text-sm font-bold transition-colors ${activeTab === 'global' ? 'border-b-2 border-emerald-500 text-emerald-600' : 'text-zinc-500 hover:text-zinc-800'}`}
-        >
-          <Settings size={16} className="inline mr-2"/>
-          Global Settings
-        </button>
-        <button 
-            type="button"
-            onClick={() => setActiveTab('freelance')}
-            className={`pb-4 text-sm font-bold transition-colors ${activeTab === 'freelance' ? 'border-b-2 border-emerald-500 text-emerald-600' : 'text-zinc-500 hover:text-zinc-800'}`}
+            onClick={() => setActiveTab('profile')}
+            className={`pb-4 text-sm font-bold transition-colors ${activeTab === 'profile' ? 'border-b-2 border-emerald-500 text-emerald-600' : 'text-zinc-500 hover:text-zinc-800'}`}
         >
           <Briefcase size={16} className="inline mr-2"/>
           Freelance Profile
         </button>
         <button 
             type="button"
-            onClick={() => setActiveTab('job')}
-            className={`pb-4 text-sm font-bold transition-colors ${activeTab === 'job' ? 'border-b-2 border-emerald-500 text-emerald-600' : 'text-zinc-500 hover:text-zinc-800'}`}
+            onClick={() => setActiveTab('settings')}
+            className={`pb-4 text-sm font-bold transition-colors ${activeTab === 'settings' ? 'border-b-2 border-emerald-500 text-emerald-600' : 'text-zinc-500 hover:text-zinc-800'}`}
         >
-          <FileText size={16} className="inline mr-2"/>
-          Job Profile
+          <Settings size={16} className="inline mr-2"/>
+          Global Settings
         </button>
       </div>
 
       <div className="space-y-8">
+        {activeTab === 'profile' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
+                <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200">
+                  <h3 className="text-lg font-bold text-zinc-900">Freelance Core details</h3>
+                </div>
+                <div className="divide-y divide-zinc-100">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
+                    <div><h4 className="text-sm font-bold text-zinc-900">Freelance Skills</h4></div>
+                    <div className="md:col-span-2"><TagInput name="skills" value={profileData.skills} onChange={handleChange} placeholder="React, Node, Figma" /></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
+                    <div><h4 className="text-sm font-bold text-zinc-900">Preferred Technologies</h4></div>
+                    <div className="md:col-span-2"><TagInput name="preferredTechnologies" value={profileData.preferredTechnologies} onChange={handleChange} placeholder="AWS, MongoDB" /></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
+                    <div><h4 className="text-sm font-bold text-zinc-900">Experience Level</h4></div>
+                    <div className="md:col-span-2">
+                        <select name="experience" value={profileData.experience} onChange={handleChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 text-zinc-900 outline-none focus:border-emerald-500 cursor-pointer">
+                            <option value="">Select Level...</option>
+                            <option value="Fresher">Fresher (0 years)</option>
+                            <option value="Junior">Junior (0-2 years)</option>
+                            <option value="Mid-level">Mid-level (3-5 years)</option>
+                            <option value="Senior">Senior (5+ years)</option>
+                        </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
+                    <div><h4 className="text-sm font-bold text-zinc-900">Hourly Rate ($)</h4></div>
+                    <div className="md:col-span-2">
+                        <input type="number" name="hourlyRate" value={profileData.hourlyRate} onChange={handleChange} placeholder="50" className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 focus:border-emerald-500 outline-none" />
+                    </div>
+                  </div>
+                </div>
+            </div>
 
-        {/* --- GLOBAL SETTINGS TAB --- */}
-        {activeTab === 'global' && (
+            <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
+                <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200 flex justify-between items-center">
+                  <h3 className="text-lg font-bold text-zinc-900">Freelance Portfolio</h3>
+                  <button type="button" onClick={() => { setProfileData({...profileData, portfolioProjects: [...profileData.portfolioProjects, { title: '', link: '', description: '' }]}); setHasChanges(true); }} className="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-600 transition">Add Project</button>
+                </div>
+                <div className="p-5 space-y-4">
+                  {(!profileData.portfolioProjects || profileData.portfolioProjects.length === 0) && <p className="text-zinc-500 text-sm">No projects added. AI uses these to write proposals.</p>}
+                  {(profileData.portfolioProjects || []).map((proj, i) => (
+                    <div key={i} className="p-4 bg-zinc-50/50 border border-zinc-200 rounded-xl relative space-y-3">
+                        <button type="button" onClick={() => {
+                            const newP = [...profileData.portfolioProjects];
+                            newP.splice(i, 1);
+                            setProfileData({...profileData, portfolioProjects: newP});
+                            setHasChanges(true);
+                        }} className="absolute top-4 right-4 text-red-500"><X size={16}/></button>
+                        <input type="text" placeholder="Project Title" value={proj.title} onChange={(e) => { const newP = [...profileData.portfolioProjects]; newP[i].title = e.target.value; setProfileData({...profileData, portfolioProjects: newP}); setHasChanges(true); }} className="w-full md:w-2/3 p-2 border border-zinc-200 rounded-lg text-sm font-bold"/>
+                        <input type="url" placeholder="Live Link" value={proj.link} onChange={(e) => { const newP = [...profileData.portfolioProjects]; newP[i].link = e.target.value; setProfileData({...profileData, portfolioProjects: newP}); setHasChanges(true); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm"/>
+                        <textarea placeholder="Description" value={proj.description} onChange={(e) => { const newP = [...profileData.portfolioProjects]; newP[i].description = e.target.value; setProfileData({...profileData, portfolioProjects: newP}); setHasChanges(true); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm h-20 resize-none"></textarea>
+                    </div>
+                  ))}
+                </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
                 <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200">
                   <h3 className="text-lg font-bold text-zinc-900">User Account</h3>
-                  <p className="text-sm text-zinc-500 mt-1">Your basic identity shared across all profiles.</p>
                 </div>
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -211,8 +229,8 @@ const Profile = () => {
                   <p className="text-sm text-zinc-500 mt-1">Set the minimum match score required for Jarvis to notify you.</p>
                 </div>
                 <div className="p-5 md:p-6 flex items-center gap-4">
-                   <span className="text-sm font-bold text-zinc-900 w-12">{globalSettings.notificationThreshold}%</span>
-                   <input type="range" name="notificationThreshold" min="0" max="100" value={globalSettings.notificationThreshold} onChange={handleGlobalChange} className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
+                   <span className="text-sm font-bold text-zinc-900 w-12">{profileData.notificationThreshold}%</span>
+                   <input type="range" name="notificationThreshold" min="0" max="100" value={profileData.notificationThreshold} onChange={handleChange} className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
                 </div>
             </div>
 
@@ -223,142 +241,11 @@ const Profile = () => {
           </div>
         )}
 
-        {/* --- FREELANCE PROFILE TAB --- */}
-        {activeTab === 'freelance' && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
-                <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200">
-                  <h3 className="text-lg font-bold text-zinc-900">Freelance Core details</h3>
-                </div>
-                <div className="divide-y divide-zinc-100">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Freelance Skills</h4></div>
-                    <div className="md:col-span-2"><TagInput name="skills" value={freelanceProfile.skills} onChange={handleFreelanceChange} placeholder="React, Node, Figma" /></div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Experience Level</h4></div>
-                    <div className="md:col-span-2">
-                        <select name="experience" value={freelanceProfile.experience} onChange={handleFreelanceChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 text-zinc-900 outline-none focus:border-emerald-500 cursor-pointer">
-                            <option value="">Select Level...</option>
-                            <option value="Fresher">Fresher (0 years)</option>
-                            <option value="Junior">Junior (0-2 years)</option>
-                            <option value="Mid-level">Mid-level (3-5 years)</option>
-                            <option value="Senior">Senior (5+ years)</option>
-                        </select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Hourly Rate ($)</h4></div>
-                    <div className="md:col-span-2">
-                        <input type="number" name="hourlyRate" value={freelanceProfile.hourlyRate} onChange={handleFreelanceChange} placeholder="50" className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 focus:border-emerald-500 outline-none" />
-                    </div>
-                  </div>
-                </div>
-            </div>
-
-            <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
-                <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200 flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-zinc-900">Freelance Portfolio</h3>
-                  <button type="button" onClick={() => { setFreelanceProfile({...freelanceProfile, portfolioProjects: [...freelanceProfile.portfolioProjects, { title: '', link: '', description: '' }]}); setHasChanges(true); }} className="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-600 transition">Add Project</button>
-                </div>
-                <div className="p-5 space-y-4">
-                  {(!freelanceProfile.portfolioProjects || freelanceProfile.portfolioProjects.length === 0) && <p className="text-zinc-500 text-sm">No projects added. AI uses these to write proposals.</p>}
-                  {(freelanceProfile.portfolioProjects || []).map((proj, i) => (
-                    <div key={i} className="p-4 bg-zinc-50/50 border border-zinc-200 rounded-xl relative space-y-3">
-                        <button type="button" onClick={() => {
-                            const newP = [...freelanceProfile.portfolioProjects];
-                            newP.splice(i, 1);
-                            setFreelanceProfile({...freelanceProfile, portfolioProjects: newP});
-                            setHasChanges(true);
-                        }} className="absolute top-4 right-4 text-red-500"><X size={16}/></button>
-                        <input type="text" placeholder="Project Title" value={proj.title} onChange={(e) => { const newP = [...freelanceProfile.portfolioProjects]; newP[i].title = e.target.value; setFreelanceProfile({...freelanceProfile, portfolioProjects: newP}); setHasChanges(true); }} className="w-full md:w-2/3 p-2 border border-zinc-200 rounded-lg text-sm font-bold"/>
-                        <input type="url" placeholder="Live Link" value={proj.link} onChange={(e) => { const newP = [...freelanceProfile.portfolioProjects]; newP[i].link = e.target.value; setFreelanceProfile({...freelanceProfile, portfolioProjects: newP}); setHasChanges(true); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm"/>
-                        <textarea placeholder="Description" value={proj.description} onChange={(e) => { const newP = [...freelanceProfile.portfolioProjects]; newP[i].description = e.target.value; setFreelanceProfile({...freelanceProfile, portfolioProjects: newP}); setHasChanges(true); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm h-20 resize-none"></textarea>
-                    </div>
-                  ))}
-                </div>
-            </div>
-          </div>
-        )}
-
-        {/* --- JOB PROFILE TAB --- */}
-        {activeTab === 'job' && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
-                <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200">
-                  <h3 className="text-lg font-bold text-zinc-900">Job Search Details</h3>
-                </div>
-                <div className="divide-y divide-zinc-100">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Preferred Roles <span className="text-red-500">*</span></h4></div>
-                    <div className="md:col-span-2"><TagInput name="preferredRoles" value={jobProfile.preferredRoles} onChange={handleJobChange} placeholder="Frontend Developer, Fullstack Engineer" /></div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Skills <span className="text-red-500">*</span></h4></div>
-                    <div className="md:col-span-2"><TagInput name="skills" value={jobProfile.skills} onChange={handleJobChange} placeholder="React, System Design, Leadership" /></div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Experience <span className="text-red-500">*</span></h4></div>
-                    <div className="md:col-span-2">
-                        <select name="experience" value={jobProfile.experience} onChange={handleJobChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 text-zinc-900 outline-none focus:border-emerald-500 cursor-pointer">
-                            <option value="">Select Level...</option>
-                            <option value="Fresher">Fresher</option>
-                            <option value="Junior">Junior</option>
-                            <option value="Mid-level">Mid-level</option>
-                            <option value="Senior">Senior</option>
-                            <option value="Staff/Principal">Staff/Principal</option>
-                        </select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Preferred Location <span className="text-red-500">*</span></h4></div>
-                    <div className="md:col-span-2"><TagInput name="preferredLocation" value={jobProfile.preferredLocation} onChange={handleJobChange} placeholder="New York, London, Remote" /></div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Work Mode <span className="text-red-500">*</span></h4></div>
-                    <div className="md:col-span-2">
-                        <select name="workMode" value={jobProfile.workMode} onChange={handleJobChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 text-zinc-900 outline-none focus:border-emerald-500 cursor-pointer">
-                            <option value="Remote">Remote</option>
-                            <option value="Onsite">Onsite</option>
-                            <option value="Hybrid">Hybrid</option>
-                        </select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Employment Type <span className="text-red-500">*</span></h4></div>
-                    <div className="md:col-span-2">
-                        <select name="employmentType" value={jobProfile.employmentType} onChange={handleJobChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 text-zinc-900 outline-none focus:border-emerald-500 cursor-pointer">
-                            <option value="Full-time">Full-time</option>
-                            <option value="Part-time">Part-time</option>
-                            <option value="Contract">Contract</option>
-                            <option value="Freelance">Freelance</option>
-                        </select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Salary Range <span className="text-red-500">*</span></h4></div>
-                    <div className="md:col-span-2 flex gap-4">
-                        <div className="flex-1">
-                            <label className="text-xs text-zinc-500 mb-1 block">Min (LPA)</label>
-                            <input type="number" name="salaryRangeMin" value={jobProfile.salaryRangeMin} onChange={handleJobChange} placeholder="5" className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 focus:border-emerald-500 outline-none" />
-                        </div>
-                        <div className="flex-1">
-                            <label className="text-xs text-zinc-500 mb-1 block">Max (LPA)</label>
-                            <input type="number" name="salaryRangeMax" value={jobProfile.salaryRangeMax} onChange={handleJobChange} placeholder="15" className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 focus:border-emerald-500 outline-none" />
-                        </div>
-                    </div>
-                  </div>
-                </div>
-            </div>
-          </div>
-        )}
-
         <div className="pt-4 flex justify-end sticky bottom-6 z-10">
           <button type="button" onClick={handleSubmit} disabled={loading || !hasChanges} className={`px-8 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-2 ${hasChanges ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-zinc-200 text-zinc-500 cursor-not-allowed'}`}>
             {loading ? 'Saving...' : 'Save All Configurations'}
           </button>
         </div>
-
       </div>
     </div>
   );

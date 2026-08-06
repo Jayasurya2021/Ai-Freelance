@@ -11,7 +11,6 @@ const DashboardLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
-  const { profileMode, setProfileMode } = useProfileMode();
   const queryClient = useQueryClient();
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -51,16 +50,7 @@ const DashboardLayout = () => {
     { name: 'Monitoring', path: '/monitoring', icon: Activity }
   ];
 
-  const jobNavItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Job Feed', path: '/feed', icon: List },
-    { name: 'Analyzer', path: '/url-analyzer', icon: Globe },
-    { name: 'Applications', path: '/saved', icon: Bookmark },
-    { name: 'Watchlist', path: '/watchlist', icon: Eye },
-    { name: 'Monitoring', path: '/monitoring', icon: Activity }
-  ];
-
-  const navItems = profileMode === 'freelance' ? freelanceNavItems : jobNavItems;
+  const navItems = freelanceNavItems;
 
   return (
     <div className="flex flex-col min-h-screen bg-[#fafafa]">
@@ -80,30 +70,7 @@ const DashboardLayout = () => {
                   </h1>
               </Link>
               
-              {/* Profile Switcher - Single Active Button */}
-              <div className="hidden md:flex relative group cursor-pointer">
-                  <div className="flex items-center gap-2 bg-zinc-100/50 hover:bg-zinc-200/50 px-3 py-1.5 rounded-lg border border-zinc-200/50 transition-colors">
-                      <span className="text-base leading-none">{profileMode === 'freelance' ? '🚀' : '💼'}</span>
-                      <span className="text-sm font-medium text-zinc-700 capitalize">{profileMode} Mode</span>
-                      <ChevronDown size={14} className="text-zinc-500" />
-                  </div>
-                  
-                  {/* Dropdown Menu */}
-                  <div className="absolute top-full left-0 mt-1 w-40 bg-white border border-zinc-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
-                      <button 
-                          onClick={() => setProfileMode('freelance')}
-                          className={`w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-zinc-50 transition-colors ${profileMode === 'freelance' ? 'text-blue-600 bg-blue-50/50 font-semibold' : 'text-zinc-600'}`}
-                      >
-                          <span>🚀</span> Freelance
-                      </button>
-                      <button 
-                          onClick={() => setProfileMode('job')}
-                          className={`w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-zinc-50 transition-colors ${profileMode === 'job' ? 'text-purple-600 bg-purple-50/50 font-semibold' : 'text-zinc-600'}`}
-                      >
-                          <span>💼</span> Job Search
-                      </button>
-                  </div>
-              </div>
+              {/* Profile Switcher Removed */}
             </div>
             
             {/* Center: Nav Items */}
@@ -217,21 +184,7 @@ const DashboardLayout = () => {
               className="sm:hidden border-t border-zinc-200 bg-white"
             >
               <div className="pt-2 pb-3 space-y-1">
-                {/* Mobile Mode Switcher */}
-                <div className="px-4 py-3 flex gap-2">
-                  <button
-                    onClick={() => { setProfileMode('freelance'); setMobileMenuOpen(false); }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors ${profileMode === 'freelance' ? 'bg-blue-50 text-blue-600' : 'bg-zinc-100 text-zinc-600'}`}
-                  >
-                    <span>🚀</span> Freelance
-                  </button>
-                  <button
-                    onClick={() => { setProfileMode('job'); setMobileMenuOpen(false); }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors ${profileMode === 'job' ? 'bg-purple-50 text-purple-600' : 'bg-zinc-100 text-zinc-600'}`}
-                  >
-                    <span>💼</span> Job Search
-                  </button>
-                </div>
+                {/* Mobile Mode Switcher Removed */}
 
                 {[...navItems, { name: 'Profile Settings', path: '/profile', icon: User }].map((item) => {
                   const Icon = item.icon;

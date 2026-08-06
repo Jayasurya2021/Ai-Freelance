@@ -29,7 +29,7 @@ exports.uploadResume = async (req, res) => {
             return res.status(400).json({ message: 'Unsupported file type. Please upload a PDF or DOCX.' });
         }
 
-        if (!extractedText || extractedText.trim() === '') {
+        if (extractedText.trim() === '') {
             return res.status(400).json({ message: 'Could not extract any text from the document.' });
         }
 
@@ -39,11 +39,7 @@ exports.uploadResume = async (req, res) => {
             return res.status(404).json({ message: 'Profile not found' });
         }
 
-        if (profileMode === 'freelance') {
-            userProfile.freelanceProfile.resumeText = extractedText;
-        } else {
-            userProfile.jobProfile.resumeText = extractedText;
-        }
+        userProfile.resumeText = extractedText;
 
         await userProfile.save();
 
@@ -71,14 +67,11 @@ exports.checkAts = async (req, res) => {
             return res.status(404).json({ message: 'Profile not found' });
         }
 
-        const profileMode = mode || 'freelance';
-        const profile = profileMode === 'freelance' ? userProfile.freelanceProfile : userProfile.jobProfile;
-        
-        if (!profile || !profile.resumeText) {
-            return res.status(400).json({ message: 'No resume uploaded for this profile mode.' });
+        if (!userProfile.resumeText) {
+            return res.status(400).json({ message: 'No resume uploaded.' });
         }
 
-        const result = await aiService.checkAtsMatch(profile.resumeText, jobDescription);
+        const result = await aiService.checkAtsMatch(userProfile.resumeText, jobDescription);
         res.status(200).json(result);
 
     } catch (error) {
@@ -100,14 +93,11 @@ exports.generateTailoredResume = async (req, res) => {
             return res.status(404).json({ message: 'Profile not found' });
         }
 
-        const profileMode = mode || 'freelance';
-        const profile = profileMode === 'freelance' ? userProfile.freelanceProfile : userProfile.jobProfile;
-        
-        if (!profile || !profile.resumeText) {
-            return res.status(400).json({ message: 'No base resume uploaded for this profile mode. Please upload one first.' });
+        if (!userProfile.resumeText) {
+            return res.status(400).json({ message: 'No base resume uploaded. Please upload one first.' });
         }
 
-        const tailoredResume = await aiService.generateTailoredResume(profile.resumeText, jobDescription, profileMode);
+        const tailoredResume = await aiService.generateTailoredResume(userProfile.resumeText, jobDescription, 'freelance');
         res.status(200).json({ tailoredResume });
 
     } catch (error) {

@@ -102,25 +102,16 @@ exports.analyzeManualJob = async (req, res) => {
         if (!userProfile) return res.status(404).json({ message: 'User profile not found' });
 
         const analysis = await aiService.analyzeOpportunity(text, userProfile);
-        const embedding = await aiService.generateEmbedding(text);
-
-        const job = new Job({
-            userId: req.user.id,
+        // Don't save to DB yet, just return the preview
+        const previewResponse = {
             title: analysis.title || 'Manual Job Entry',
             description: text,
             sourceName: 'Manual Paste',
             platform: 'Manual',
-            ...analysis,
-            embedding
-        });
+            ...analysis
+        };
 
-        await job.save();
-        
-        // Remove embedding from response
-        const jobResponse = job.toObject();
-        delete jobResponse.embedding;
-
-        res.status(201).json(jobResponse);
+        res.status(200).json(previewResponse);
     } catch (error) {
         console.error("Manual analyze error:", error);
         res.status(500).json({ message: 'Server error analyzing job' });
@@ -154,5 +145,39 @@ exports.toggleHideJob = async (req, res) => {
     } catch (error) {
         console.error('Toggle hide error:', error);
         res.status(500).json({ message: 'Server error while hiding job' });
+    }
+};
+
+exports.approveAndPitch = async (req, res) => {
+    try {
+        const { jobData } = req.body;
+        if (!jobData || !jobData.description) {
+            return res.status(400).json({ message: 'Job data is required' });
+        }
+
+        const userProfile = await Profile.findById(req.user.id);
+        if (!userProfile) return res.status(404).json({ message: 'User profile not found' });
+
+        const embedding = await aiService.generateEmbedding(jobData.description);
+
+        // Save the job
+        const job = new Job({
+            userId: req.user.id,
+            ...jobData,
+            status: 'saved', // Mark as saved since they approved it
+            embedding
+        });
+        await job.save();
+
+        // Generate Pitch
+        const proposal = await aiService.generateProposal(job, userProfile);
+
+        const jobResponse = job.toObject();
+        delete jobResponse.embedding;
+
+        res.status(201).json({ job: jobResponse, proposal });
+    } catch (error) {
+        console.error("Approve and Pitch error:", error);
+        res.status(500).json({ message: 'Server error generating pitch' });
     }
 };

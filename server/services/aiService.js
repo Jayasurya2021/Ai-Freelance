@@ -14,14 +14,12 @@ exports.analyzeOpportunity = async (opportunityText, userProfile) => {
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash", generationConfig: { responseMimeType: "application/json" }});
         
-        const mode = userProfile.activeProfileMode || 'freelance';
-        const profile = mode === 'freelance' ? userProfile.freelanceProfile : userProfile.jobProfile;
-        const profileContextStr = profile ? `
-        Skills: ${profile.skills?.join(', ') || 'Not specified'}
-        Experience: ${profile.experience || 'Not specified'}
-        Rate/Salary: ${mode === 'freelance' ? profile.hourlyRate : profile.expectedSalary || 'Not specified'}
-        Preferred Tech Stack: ${profile.preferredTechStack?.join(', ') || 'Not specified'}
-        Resume Context: ${profile.resumeText ? profile.resumeText.substring(0, 1000) : 'None'}
+        const profileContextStr = userProfile ? `
+        Skills: ${userProfile.skills?.join(', ') || 'Not specified'}
+        Experience: ${userProfile.experience || 'Not specified'}
+        Rate/Salary: ${userProfile.hourlyRate || 'Not specified'}
+        Preferred Tech Stack: ${userProfile.preferredTechnologies?.join(', ') || 'Not specified'}
+        Resume Context: ${userProfile.resumeText ? userProfile.resumeText.substring(0, 1000) : 'None'}
         ` : 'No profile data.';
 
         const prompt = `
@@ -108,21 +106,18 @@ exports.generateProposal = async (opportunity, userProfile) => {
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
         
-        const mode = userProfile.activeProfileMode || 'freelance';
-        const profile = mode === 'freelance' ? userProfile.freelanceProfile : userProfile.jobProfile;
-        
-        const profileContextStr = profile ? `
+        const profileContextStr = userProfile ? `
         Name: ${userProfile.name || 'Professional'}
-        Skills: ${profile.skills?.join(', ') || 'Not specified'}
-        Experience: ${profile.experience || 'Not specified'}
-        Portfolio Projects: ${profile.portfolioProjects ? JSON.stringify(profile.portfolioProjects) : 'None'}
-        Resume Context: ${profile.resumeText ? profile.resumeText.substring(0, 1000) : 'None'}
+        Skills: ${userProfile.skills?.join(', ') || 'Not specified'}
+        Experience: ${userProfile.experience || 'Not specified'}
+        Portfolio Projects: ${userProfile.portfolioProjects ? JSON.stringify(userProfile.portfolioProjects) : 'None'}
+        Resume Context: ${userProfile.resumeText ? userProfile.resumeText.substring(0, 1000) : 'None'}
         ` : 'No profile data.';
 
         const prompt = `
-        You are an expert ${mode === 'freelance' ? 'freelance career' : 'job search'} copilot helping a professional write a winning ${mode === 'freelance' ? 'proposal' : 'cover letter'}.
+        You are an expert freelance career copilot helping a professional write a winning proposal.
         
-        User Profile (${mode} mode):
+        User Profile:
         ${profileContextStr}
         
         Opportunity Details:
