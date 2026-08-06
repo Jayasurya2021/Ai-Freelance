@@ -50,6 +50,8 @@ const runForUser = async (userId) => {
                     const analysis = await matchingService.analyzeAndMatch(userId, item.content, userProfile, userProfile.activeProfileMode);
                     
                     const opportunity = new Opportunity({
+                        userId: userId,
+                        profileMode: userProfile.activeProfileMode,
                         title: item.title,
                         description: item.content.substring(0, 500) + '...',
                         sourceName: source.name,
