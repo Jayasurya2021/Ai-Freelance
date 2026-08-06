@@ -2,6 +2,7 @@ const Source = require('../models/Source');
 const Opportunity = require('../models/Opportunity');
 const OpportunityQueue = require('../models/OpportunityQueue');
 const MonitoringLog = require('../models/MonitoringLog');
+const Job = require('../models/Job');
 
 exports.getSourceHealth = async (req, res) => {
     try {
