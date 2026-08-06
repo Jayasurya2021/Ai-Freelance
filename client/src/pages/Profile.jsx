@@ -5,7 +5,6 @@ import { User, Code2, Briefcase, Globe, DollarSign, CheckCircle2, Zap, X, Settin
 import { motion } from 'framer-motion';
 import AISettings from './AISettings';
 import SourceManager from './SourceManager';
-import ATSBuilder from '../components/profile/ATSBuilder';
 
 const TagInput = ({ name, value, onChange, placeholder }) => {
   const [input, setInput] = useState('');
@@ -88,6 +87,7 @@ const Profile = () => {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -105,11 +105,12 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
-  const handleGlobalChange = (e) => setGlobalSettings({ ...globalSettings, [e.target.name]: e.target.value });
-  const handleFreelanceChange = (e) => setFreelanceProfile({ ...freelanceProfile, [e.target.name]: e.target.value });
+  const handleGlobalChange = (e) => { setGlobalSettings({ ...globalSettings, [e.target.name]: e.target.value }); setHasChanges(true); };
+  const handleFreelanceChange = (e) => { setFreelanceProfile({ ...freelanceProfile, [e.target.name]: e.target.value }); setHasChanges(true); };
   const handleJobChange = (e) => {
     const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setJobProfile({ ...jobProfile, [e.target.name]: val });
+    setHasChanges(true);
   };
 
   const handleSubmit = async (e) => {
@@ -126,6 +127,7 @@ const Profile = () => {
       const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/api/profile`, updates);
       updateUser(data.profile);
       setMessage('Profile updated successfully!');
+      setHasChanges(false);
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
       setMessage('Failed to update profile.');
@@ -257,7 +259,7 @@ const Profile = () => {
             <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
                 <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200 flex justify-between items-center">
                   <h3 className="text-lg font-bold text-zinc-900">Freelance Portfolio</h3>
-                  <button type="button" onClick={() => setFreelanceProfile({...freelanceProfile, portfolioProjects: [...freelanceProfile.portfolioProjects, { title: '', link: '', description: '' }]})} className="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-600 transition">Add Project</button>
+                  <button type="button" onClick={() => { setFreelanceProfile({...freelanceProfile, portfolioProjects: [...freelanceProfile.portfolioProjects, { title: '', link: '', description: '' }]}); setHasChanges(true); }} className="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-600 transition">Add Project</button>
                 </div>
                 <div className="p-5 space-y-4">
                   {(!freelanceProfile.portfolioProjects || freelanceProfile.portfolioProjects.length === 0) && <p className="text-zinc-500 text-sm">No projects added. AI uses these to write proposals.</p>}
@@ -267,22 +269,14 @@ const Profile = () => {
                             const newP = [...freelanceProfile.portfolioProjects];
                             newP.splice(i, 1);
                             setFreelanceProfile({...freelanceProfile, portfolioProjects: newP});
+                            setHasChanges(true);
                         }} className="absolute top-4 right-4 text-red-500"><X size={16}/></button>
-                        <input type="text" placeholder="Project Title" value={proj.title} onChange={(e) => { const newP = [...freelanceProfile.portfolioProjects]; newP[i].title = e.target.value; setFreelanceProfile({...freelanceProfile, portfolioProjects: newP}); }} className="w-full md:w-2/3 p-2 border border-zinc-200 rounded-lg text-sm font-bold"/>
-                        <input type="url" placeholder="Live Link" value={proj.link} onChange={(e) => { const newP = [...freelanceProfile.portfolioProjects]; newP[i].link = e.target.value; setFreelanceProfile({...freelanceProfile, portfolioProjects: newP}); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm"/>
-                        <textarea placeholder="Description" value={proj.description} onChange={(e) => { const newP = [...freelanceProfile.portfolioProjects]; newP[i].description = e.target.value; setFreelanceProfile({...freelanceProfile, portfolioProjects: newP}); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm h-20 resize-none"></textarea>
+                        <input type="text" placeholder="Project Title" value={proj.title} onChange={(e) => { const newP = [...freelanceProfile.portfolioProjects]; newP[i].title = e.target.value; setFreelanceProfile({...freelanceProfile, portfolioProjects: newP}); setHasChanges(true); }} className="w-full md:w-2/3 p-2 border border-zinc-200 rounded-lg text-sm font-bold"/>
+                        <input type="url" placeholder="Live Link" value={proj.link} onChange={(e) => { const newP = [...freelanceProfile.portfolioProjects]; newP[i].link = e.target.value; setFreelanceProfile({...freelanceProfile, portfolioProjects: newP}); setHasChanges(true); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm"/>
+                        <textarea placeholder="Description" value={proj.description} onChange={(e) => { const newP = [...freelanceProfile.portfolioProjects]; newP[i].description = e.target.value; setFreelanceProfile({...freelanceProfile, portfolioProjects: newP}); setHasChanges(true); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm h-20 resize-none"></textarea>
                     </div>
                   ))}
                 </div>
-            </div>
-            
-            <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-5 md:p-6">
-                <ATSBuilder 
-                  user={user} 
-                  activeProfileMode="freelance" 
-                  currentResumeText={freelanceProfile.resumeText} 
-                  onResumeExtracted={(text) => setFreelanceProfile({...freelanceProfile, resumeText: text})} 
-                />
             </div>
           </div>
         )}
@@ -333,20 +327,11 @@ const Profile = () => {
                   </div>
                 </div>
             </div>
-
-            <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-5 md:p-6">
-                <ATSBuilder 
-                  user={user} 
-                  activeProfileMode="job" 
-                  currentResumeText={jobProfile.resumeText} 
-                  onResumeExtracted={(text) => setJobProfile({...jobProfile, resumeText: text})} 
-                />
-            </div>
           </div>
         )}
 
         <div className="pt-4 flex justify-end sticky bottom-6 z-10">
-          <button type="button" onClick={handleSubmit} disabled={loading} className="bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-emerald-600 transition-all shadow-lg flex items-center gap-2">
+          <button type="button" onClick={handleSubmit} disabled={loading || !hasChanges} className={`px-8 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-2 ${hasChanges ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-zinc-200 text-zinc-500 cursor-not-allowed'}`}>
             {loading ? 'Saving...' : 'Save All Configurations'}
           </button>
         </div>
