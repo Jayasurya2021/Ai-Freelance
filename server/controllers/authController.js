@@ -136,9 +136,7 @@ exports.googleLogin = async (req, res) => {
             profile = new Profile({
                 name,
                 email,
-                // We don't have a password for google users, but schema might require it or we just generate a random one
-                // Assuming password is not strictly required if we adjust schema or we can just set a dummy one
-                password: await bcrypt.hash(googleId + process.env.JWT_SECRET, 10)
+                googleId
             });
             await profile.save();
         }
