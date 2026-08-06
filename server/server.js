@@ -7,9 +7,24 @@ const aiAgent = require('./cron/aiAgent');
 
 dotenv.config();
 
+// Environment Variable Validation
+const requiredEnvVars = ['JWT_SECRET', 'ENCRYPTION_KEY', 'MONGO_URI', 'GOOGLE_CLIENT_ID'];
+const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingVars.length > 0) {
+    console.error(`CRITICAL ERROR: Missing required environment variables: ${missingVars.join(', ')}`);
+    console.error('Please configure them in server/.env before starting the server.');
+    process.exit(1);
+}
+
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan('dev'));
 

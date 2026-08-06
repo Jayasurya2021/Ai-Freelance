@@ -9,6 +9,20 @@ exports.register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
+        // Input validation
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: 'Please provide all required fields' });
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Invalid email format' });
+        }
+        
+        if (password.length < 8) {
+            return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+        }
+
         // Check if user already exists
         const existingProfile = await Profile.findOne({ email });
         if (existingProfile) {
@@ -31,7 +45,7 @@ exports.register = async (req, res) => {
         // Generate JWT
         const token = jwt.sign(
             { id: newProfile._id },
-            process.env.JWT_SECRET || 'fallback_secret',
+            process.env.JWT_SECRET,
             { expiresIn: '30d' }
         );
 
@@ -56,6 +70,16 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        // Input validation
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Please provide email and password' });
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Invalid email format' });
+        }
+
         // Find user by email
         const profile = await Profile.findOne({ email });
         if (!profile) {
@@ -71,7 +95,7 @@ exports.login = async (req, res) => {
         // Generate JWT
         const token = jwt.sign(
             { id: profile._id },
-            process.env.JWT_SECRET || 'fallback_secret',
+            process.env.JWT_SECRET,
             { expiresIn: '30d' }
         );
 
@@ -122,7 +146,7 @@ exports.googleLogin = async (req, res) => {
         // Generate JWT
         const token = jwt.sign(
             { id: profile._id },
-            process.env.JWT_SECRET || 'fallback_secret',
+            process.env.JWT_SECRET,
             { expiresIn: '30d' }
         );
         

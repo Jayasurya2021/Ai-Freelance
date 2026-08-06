@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default_secret_key_needs_32bytes'; // Must be 32 bytes
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 32 bytes
 const IV_LENGTH = 16; 
 
 // Ensure key is exactly 32 bytes (256 bits)
