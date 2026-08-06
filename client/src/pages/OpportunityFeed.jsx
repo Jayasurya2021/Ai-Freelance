@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ExternalLink, CheckCircle, Briefcase, DollarSign, Calendar, Star, FileText } from 'lucide-react';
+import { useProfileMode } from '../context/ProfileContext';
 
 const OpportunityFeed = () => {
+    const { profileMode } = useProfileMode();
     const [opportunities, setOpportunities] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -11,10 +13,10 @@ const OpportunityFeed = () => {
             try {
                 const token = localStorage.getItem('token');
                 // Reusing the existing opportunity route
-                const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/opportunities`, {
+                const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/opportunities?mode=${profileMode}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                setOpportunities(data);
+                setOpportunities(data.opportunities || data);
             } catch (err) {
                 console.error("Failed to load feed");
             } finally {
@@ -22,7 +24,7 @@ const OpportunityFeed = () => {
             }
         };
         fetchOpps();
-    }, []);
+    }, [profileMode]);
 
     const getScoreColor = (score) => {
         if (score >= 80) return 'text-green-500 bg-green-100';

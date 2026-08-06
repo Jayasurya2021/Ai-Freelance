@@ -4,11 +4,13 @@ import axios from 'axios';
 import { Inbox, ExternalLink, ShieldCheck, Zap, Search, Loader2, FileText, CheckCircle2, Copy, X, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+import { useProfileMode } from '../context/ProfileContext';
+
 const fetchOpportunities = async ({ queryKey }) => {
-  const [_key, searchQuery] = queryKey;
+  const [_key, searchQuery, mode] = queryKey;
   const url = searchQuery 
-    ? `${import.meta.env.VITE_API_URL}/api/opportunities?q=${encodeURIComponent(searchQuery)}`
-    : `${import.meta.env.VITE_API_URL}/api/opportunities`;
+    ? `${import.meta.env.VITE_API_URL}/api/opportunities?q=${encodeURIComponent(searchQuery)}&mode=${mode}`
+    : `${import.meta.env.VITE_API_URL}/api/opportunities?mode=${mode}`;
   const { data } = await axios.get(url);
   return data.opportunities || [];
 };
@@ -29,11 +31,12 @@ const EmptyState = () => (
 
 const Opportunities = () => {
   const { user } = useAuth();
+  const { profileMode } = useProfileMode();
   const [semanticQuery, setSemanticQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
   const { data: opportunities = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ['opportunities_full', semanticQuery],
+    queryKey: ['opportunities_full', semanticQuery, profileMode],
     queryFn: fetchOpportunities
   });
   const [scanUrl, setScanUrl] = useState('');
