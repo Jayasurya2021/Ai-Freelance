@@ -220,7 +220,7 @@ const Opportunities = () => {
                     <div className="flex items-center gap-3 mt-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
                       <span className="flex items-center gap-1"><ShieldCheck size={14} className="text-emerald-500"/> Verified Source</span>
                       <span>•</span>
-                      <span>{op.sourceName}</span>
+                      <span>{op.sourceName || op.platform || 'Unknown Source'}</span>
                       <span>•</span>
                       <span>{new Date(op.publishedDate).toLocaleDateString()}</span>
                     </div>
