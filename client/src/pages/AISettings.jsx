@@ -5,7 +5,8 @@ import { Key, Info, ExternalLink, CheckCircle, XCircle } from 'lucide-react';
 const AISettings = () => {
     const [settings, setSettings] = useState({
         groqKey: '',
-        geminiKey: ''
+        geminiKey: '',
+        provider: 'gemini'
     });
     
     const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -23,6 +24,7 @@ const AISettings = () => {
                 if (data) {
                     setSettings({
                         ...settings,
+                        provider: data.provider || 'gemini',
                         geminiKey: data.hasGeminiKey ? '********' : '',
                         groqKey: data.hasGroqKey ? '********' : ''
                     });
@@ -138,6 +140,22 @@ const AISettings = () => {
                             <li>4. Click <strong>Create API key</strong> and copy it.</li>
                         </ol>
                     </div>
+                </div>
+
+                {/* Active Provider Selection */}
+                <div className="mb-6">
+                    <label className="block text-xs font-bold text-zinc-400 mb-3 uppercase tracking-wider">ACTIVE AI PROVIDER</label>
+                    <select
+                        name="provider"
+                        value={settings.provider || 'gemini'}
+                        onChange={handleChange}
+                        className="w-full p-3.5 border rounded-xl bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 outline-none transition-all text-zinc-900 dark:text-white"
+                    >
+                        <option value="gemini">Google Gemini</option>
+                        <option value="groq">Groq</option>
+                        <option value="openai">OpenAI</option>
+                    </select>
+                    <p className="text-zinc-500 text-xs mt-2">Select which provider to use for all AI features.</p>
                 </div>
 
                 {/* API Key Inputs */}
