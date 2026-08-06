@@ -82,7 +82,7 @@ const Profile = () => {
   });
 
   const [jobProfile, setJobProfile] = useState({
-    skills: [], experience: '', expectedSalary: '', preferredTechStack: [], githubLink: '', resumeText: '', remotePreference: true, relocation: false
+    skills: [], experience: '', preferredRoles: [], preferredLocation: [], workMode: 'Remote', employmentType: 'Full-time', salaryRangeMin: '', salaryRangeMax: '', preferredTechStack: [], githubLink: '', resumeText: '', relocation: false
   });
 
   const [loading, setLoading] = useState(false);
@@ -290,11 +290,15 @@ const Profile = () => {
                 </div>
                 <div className="divide-y divide-zinc-100">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Target Skills</h4></div>
+                    <div><h4 className="text-sm font-bold text-zinc-900">Preferred Roles <span className="text-red-500">*</span></h4></div>
+                    <div className="md:col-span-2"><TagInput name="preferredRoles" value={jobProfile.preferredRoles} onChange={handleJobChange} placeholder="Frontend Developer, Fullstack Engineer" /></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
+                    <div><h4 className="text-sm font-bold text-zinc-900">Skills <span className="text-red-500">*</span></h4></div>
                     <div className="md:col-span-2"><TagInput name="skills" value={jobProfile.skills} onChange={handleJobChange} placeholder="React, System Design, Leadership" /></div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Experience Level</h4></div>
+                    <div><h4 className="text-sm font-bold text-zinc-900">Experience <span className="text-red-500">*</span></h4></div>
                     <div className="md:col-span-2">
                         <select name="experience" value={jobProfile.experience} onChange={handleJobChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 text-zinc-900 outline-none focus:border-emerald-500 cursor-pointer">
                             <option value="">Select Level...</option>
@@ -307,22 +311,41 @@ const Profile = () => {
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Expected Salary ($)</h4></div>
+                    <div><h4 className="text-sm font-bold text-zinc-900">Preferred Location <span className="text-red-500">*</span></h4></div>
+                    <div className="md:col-span-2"><TagInput name="preferredLocation" value={jobProfile.preferredLocation} onChange={handleJobChange} placeholder="New York, London, Remote" /></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
+                    <div><h4 className="text-sm font-bold text-zinc-900">Work Mode <span className="text-red-500">*</span></h4></div>
                     <div className="md:col-span-2">
-                        <input type="number" name="expectedSalary" value={jobProfile.expectedSalary} onChange={handleJobChange} placeholder="120000" className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 focus:border-emerald-500 outline-none" />
+                        <select name="workMode" value={jobProfile.workMode} onChange={handleJobChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 text-zinc-900 outline-none focus:border-emerald-500 cursor-pointer">
+                            <option value="Remote">Remote</option>
+                            <option value="Onsite">Onsite</option>
+                            <option value="Hybrid">Hybrid</option>
+                        </select>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Work Preferences</h4></div>
-                    <div className="md:col-span-2 flex gap-6">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="remotePreference" checked={jobProfile.remotePreference} onChange={handleJobChange} className="w-4 h-4 text-emerald-600 rounded" />
-                            <span className="text-sm font-medium">Remote Preferred</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="relocation" checked={jobProfile.relocation} onChange={handleJobChange} className="w-4 h-4 text-emerald-600 rounded" />
-                            <span className="text-sm font-medium">Open to Relocation</span>
-                        </label>
+                    <div><h4 className="text-sm font-bold text-zinc-900">Employment Type <span className="text-red-500">*</span></h4></div>
+                    <div className="md:col-span-2">
+                        <select name="employmentType" value={jobProfile.employmentType} onChange={handleJobChange} className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 text-zinc-900 outline-none focus:border-emerald-500 cursor-pointer">
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Freelance">Freelance</option>
+                        </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
+                    <div><h4 className="text-sm font-bold text-zinc-900">Salary Range <span className="text-red-500">*</span></h4></div>
+                    <div className="md:col-span-2 flex gap-4">
+                        <div className="flex-1">
+                            <label className="text-xs text-zinc-500 mb-1 block">Min (LPA)</label>
+                            <input type="number" name="salaryRangeMin" value={jobProfile.salaryRangeMin} onChange={handleJobChange} placeholder="5" className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 focus:border-emerald-500 outline-none" />
+                        </div>
+                        <div className="flex-1">
+                            <label className="text-xs text-zinc-500 mb-1 block">Max (LPA)</label>
+                            <input type="number" name="salaryRangeMax" value={jobProfile.salaryRangeMax} onChange={handleJobChange} placeholder="15" className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 focus:border-emerald-500 outline-none" />
+                        </div>
                     </div>
                   </div>
                 </div>

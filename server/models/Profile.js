@@ -20,16 +20,17 @@ const profileSchema = new mongoose.Schema({
     jobProfile: {
         skills: { type: [String], default: [] },
         experience: { type: String, default: '' },
-        preferredSalary: { type: Number, default: 0 },
-        expectedSalary: { type: Number, default: 0 },
-        preferredCountries: { type: [String], default: [] },
+        preferredRoles: { type: [String], default: [] },
+        preferredLocation: { type: [String], default: [] },
+        workMode: { type: String, default: 'Remote' },
+        employmentType: { type: String, default: 'Full-time' },
+        salaryRangeMin: { type: Number, default: 0 },
+        salaryRangeMax: { type: Number, default: 0 },
         preferredCompanies: { type: [String], default: [] },
-        preferredJobTitles: { type: [String], default: [] },
         preferredTechnologies: { type: [String], default: [] },
-        preferredEmploymentType: { type: [String], default: ['Full-time'] },
-        remotePreference: { type: Boolean, default: true },
         relocation: { type: Boolean, default: false },
-        careerGoals: { type: [String], default: [] }
+        careerGoals: { type: [String], default: [] },
+        resumeText: { type: String, default: '' }
     },
     // Global Settings
     activeProfileMode: { type: String, enum: ['freelance', 'job'], default: 'freelance' },
