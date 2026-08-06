@@ -7,13 +7,14 @@ const OpportunityFeed = () => {
     const { profileMode } = useProfileMode();
     const [opportunities, setOpportunities] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [sources, setSources] = useState([]);
+    const [selectedSource, setSelectedSource] = useState('All Sources');
 
     useEffect(() => {
         const fetchOpps = async () => {
             try {
                 const token = localStorage.getItem('token');
-                // Reusing the existing opportunity route
-                const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/opportunities?mode=${profileMode}`, {
+                const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/opportunities?mode=${profileMode}&sourceName=${encodeURIComponent(selectedSource)}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setOpportunities(data.opportunities || data);
@@ -23,8 +24,22 @@ const OpportunityFeed = () => {
                 setLoading(false);
             }
         };
+
+        const fetchSources = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/sources`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setSources(data);
+            } catch (err) {
+                console.error("Failed to load sources");
+            }
+        };
+
+        fetchSources();
         fetchOpps();
-    }, [profileMode]);
+    }, [profileMode, selectedSource]);
 
     const getScoreColor = (score) => {
         if (score >= 80) return 'text-green-500 bg-green-100';
@@ -39,6 +54,19 @@ const OpportunityFeed = () => {
                     <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white tracking-tight">Opportunity Feed</h1>
                     <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">AI-curated opportunities matching your active profile.</p>
                 </div>
+                <div className="flex items-center gap-2 bg-white border border-zinc-200 rounded-xl p-2 shadow-sm dark:bg-white/[0.02] dark:border-white/10">
+                    <span className="text-sm font-semibold text-zinc-500 pl-2">Source:</span>
+                    <select 
+                        value={selectedSource}
+                        onChange={(e) => setSelectedSource(e.target.value)}
+                        className="bg-transparent text-sm font-bold text-zinc-900 outline-none cursor-pointer p-1"
+                    >
+                        <option value="All Sources">All Sources</option>
+                        {sources.map(s => (
+                            <option key={s._id} value={s.name}>{s.name}</option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             {loading ? (
@@ -51,8 +79,8 @@ const OpportunityFeed = () => {
                         <div key={opp._id} className="bg-white dark:bg-white/[0.02] rounded-2xl shadow-sm border border-zinc-200 dark:border-white/10 flex flex-col overflow-hidden hover:shadow-md transition-shadow">
                             <div className="p-6 flex-1">
                                 <div className="flex justify-between items-start mb-4">
-                                    <span className="text-xs font-bold uppercase tracking-wider text-zinc-600 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 px-2.5 py-1 rounded-lg">
-                                        {opp.platform || 'Unknown Source'}
+                                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
+                                        {opp.sourceName || opp.platform || 'Unknown Source'}
                                     </span>
                                     <span className={`px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center gap-1 ${
                                         opp.matchScore >= 80 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 

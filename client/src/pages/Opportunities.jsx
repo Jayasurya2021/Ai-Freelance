@@ -7,12 +7,21 @@ import { useAuth } from '../context/AuthContext';
 import { useProfileMode } from '../context/ProfileContext';
 
 const fetchOpportunities = async ({ queryKey }) => {
-  const [_key, searchQuery, mode] = queryKey;
-  const url = searchQuery 
-    ? `${import.meta.env.VITE_API_URL}/api/opportunities?q=${encodeURIComponent(searchQuery)}&mode=${mode}`
-    : `${import.meta.env.VITE_API_URL}/api/opportunities?mode=${mode}`;
+  const [_key, searchQuery, mode, sourceName] = queryKey;
+  let url = `${import.meta.env.VITE_API_URL}/api/opportunities?mode=${mode}`;
+  if (searchQuery) url += `&q=${encodeURIComponent(searchQuery)}`;
+  if (sourceName && sourceName !== 'All Sources') url += `&sourceName=${encodeURIComponent(sourceName)}`;
+  
   const { data } = await axios.get(url);
   return data.opportunities || [];
+};
+
+const fetchSources = async () => {
+    const token = localStorage.getItem('token');
+    const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/sources`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    return data;
 };
 
 const EmptyState = () => (
@@ -34,9 +43,15 @@ const Opportunities = () => {
   const { profileMode } = useProfileMode();
   const [semanticQuery, setSemanticQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [selectedSource, setSelectedSource] = useState('All Sources');
+
+  const { data: sources = [] } = useQuery({
+      queryKey: ['sources'],
+      queryFn: fetchSources
+  });
 
   const { data: opportunities = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ['opportunities_full', semanticQuery, profileMode],
+    queryKey: ['opportunities_full', semanticQuery, profileMode, selectedSource],
     queryFn: fetchOpportunities
   });
   const [scanUrl, setScanUrl] = useState('');
@@ -101,6 +116,19 @@ const Opportunities = () => {
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 tracking-tight">Opportunities</h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">Your AI-curated freelance opportunities from real sources.</p>
+        </div>
+        <div className="flex items-center gap-2 bg-white border border-zinc-200 rounded-xl p-2 shadow-sm dark:bg-white/[0.02] dark:border-white/10">
+            <span className="text-sm font-semibold text-zinc-500 pl-2">Source:</span>
+            <select 
+                value={selectedSource}
+                onChange={(e) => setSelectedSource(e.target.value)}
+                className="bg-transparent text-sm font-bold text-zinc-900 outline-none cursor-pointer p-1"
+            >
+                <option value="All Sources">All Sources</option>
+                {sources.map(s => (
+                    <option key={s._id} value={s.name}>{s.name}</option>
+                ))}
+            </select>
         </div>
       </div>
 

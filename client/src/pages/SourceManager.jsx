@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Edit2, Trash2, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { Plus, Edit2, Trash2, CheckCircle, XCircle, RefreshCw, Eye, X } from 'lucide-react';
 
 const SourceManager = () => {
     const [sources, setSources] = useState([]);
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({ name: '', type: 'rss', url: '', intervalMinutes: 60 });
     const [editingId, setEditingId] = useState(null);
+
+    const [previewModal, setPreviewModal] = useState({ isOpen: false, loading: false, data: null, error: null });
 
     useEffect(() => {
         fetchSources();
@@ -70,6 +72,21 @@ const SourceManager = () => {
         });
     };
 
+    const handlePreview = async (source) => {
+        setPreviewModal({ isOpen: true, loading: true, data: null, error: null });
+        try {
+            const token = localStorage.getItem('token');
+            const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/sources/test`, {
+                url: source.url, type: source.type
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setPreviewModal({ isOpen: true, loading: false, data, error: null });
+        } catch (err) {
+            setPreviewModal({ isOpen: true, loading: false, data: null, error: "Failed to fetch or parse source." });
+        }
+    };
+
     return (
         <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm p-6 dark:bg-white/[0.02] dark:border-white/10">
 
@@ -128,8 +145,9 @@ const SourceManager = () => {
                                     {source.lastChecked ? new Date(source.lastChecked).toLocaleString() : 'Never'}
                                 </td>
                                 <td className="p-4 flex gap-2">
-                                    <button onClick={() => startEdit(source)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={16}/></button>
-                                    <button onClick={() => handleDelete(source._id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16}/></button>
+                                    <button onClick={() => handlePreview(source)} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Preview"><Eye size={16}/></button>
+                                    <button onClick={() => startEdit(source)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><Edit2 size={16}/></button>
+                                    <button onClick={() => handleDelete(source._id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete"><Trash2 size={16}/></button>
                                 </td>
                             </tr>
                         ))}
@@ -141,6 +159,48 @@ const SourceManager = () => {
                     </tbody>
                 </table>
             </div>
+
+            {previewModal.isOpen && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[80vh]">
+                        <div className="p-5 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
+                            <h3 className="font-bold text-lg text-zinc-900">Source Preview</h3>
+                            <button onClick={() => setPreviewModal({ isOpen: false, loading: false, data: null, error: null })} className="p-2 hover:bg-zinc-200 rounded-lg transition-colors">
+                                <X size={20} className="text-zinc-500" />
+                            </button>
+                        </div>
+                        <div className="p-6 overflow-y-auto">
+                            {previewModal.loading ? (
+                                <div className="flex flex-col items-center justify-center py-10">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mb-4"></div>
+                                    <p className="text-zinc-500">Fetching live data from source...</p>
+                                </div>
+                            ) : previewModal.error ? (
+                                <div className="bg-red-50 text-red-600 p-4 rounded-xl text-center">
+                                    {previewModal.error}
+                                </div>
+                            ) : previewModal.data && previewModal.data.length > 0 ? (
+                                <div className="space-y-4">
+                                    <p className="text-sm font-medium text-emerald-600 mb-4 flex items-center gap-2">
+                                        <CheckCircle size={16} /> Successfully parsed {previewModal.data.length} items. Showing preview:
+                                    </p>
+                                    {previewModal.data.map((item, idx) => (
+                                        <div key={idx} className="bg-zinc-50 border border-zinc-200 p-4 rounded-xl">
+                                            <h4 className="font-bold text-zinc-900 mb-2">{item.title}</h4>
+                                            <p className="text-xs text-zinc-500 mb-2">Company: {item.company} | URL: <a href={item.originalUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{item.originalUrl}</a></p>
+                                            <p className="text-sm text-zinc-600 line-clamp-2">{item.content}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-10 text-zinc-500">
+                                    No items found. The source might be empty or blocking the crawler.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,4 +1,5 @@
 const Source = require('../models/Source');
+const collectorService = require('../services/collectorService');
 
 exports.getSources = async (req, res) => {
     try {
@@ -43,5 +44,27 @@ exports.deleteSource = async (req, res) => {
         res.json({ message: "Source deleted" });
     } catch (err) {
         res.status(500).json({ message: "Failed to delete source", error: err.message });
+    }
+};
+
+exports.testSource = async (req, res) => {
+    try {
+        const { url, type } = req.body;
+        if (!url || !type) return res.status(400).json({ message: "Missing url or type" });
+        
+        let items = [];
+        if (type === 'rss') {
+            items = await collectorService.extractFromRss(url);
+        } else if (type === 'url') {
+            const item = await collectorService.extractFromUrl(url);
+            items = [item];
+        } else {
+            return res.status(400).json({ message: "Invalid source type" });
+        }
+        
+        // Return up to 5 items to preview
+        res.status(200).json(items.slice(0, 5));
+    } catch (err) {
+        res.status(500).json({ message: "Test failed", error: err.message });
     }
 };

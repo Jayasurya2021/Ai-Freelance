@@ -24,13 +24,18 @@ exports.getOpportunities = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
         const searchQuery = req.query.q;
+        const sourceFilter = req.query.sourceName;
 
         if (searchQuery) {
             // Semantic Search Flow
             const queryEmbedding = await aiService.generateEmbedding(searchQuery);
             
             // Get all opportunities that have an embedding
-            const allOps = await Opportunity.find({ embedding: { $exists: true, $ne: [] } });
+            const searchBaseQuery = { embedding: { $exists: true, $ne: [] } };
+            if (sourceFilter && sourceFilter !== 'All Sources') {
+                searchBaseQuery.sourceName = sourceFilter;
+            }
+            const allOps = await Opportunity.find(searchBaseQuery);
             
             // Calculate similarity and sort
             const scoredOps = allOps.map(op => {
@@ -52,6 +57,9 @@ exports.getOpportunities = async (req, res) => {
         // Standard Flow
         const mode = req.query.mode || 'freelance';
         const query = { profileMode: mode };
+        if (sourceFilter && sourceFilter !== 'All Sources') {
+            query.sourceName = sourceFilter;
+        }
 
         const opportunities = await Opportunity.find(query)
             .sort({ matchScore: -1 })
