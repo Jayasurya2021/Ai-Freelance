@@ -211,3 +211,43 @@ exports.generateTailoredResume = async (baseResumeText, jobDescription, mode) =>
         throw error;
     }
 };
+
+/**
+ * Extracts structured profile data from raw resume text.
+ */
+exports.extractProfileFromResume = async (resumeText) => {
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash", generationConfig: { responseMimeType: "application/json" } });
+        
+        const prompt = `
+        You are an expert HR parser.
+        Extract the following information from the provided Resume text. 
+        If a field is not found, leave it empty or return reasonable defaults (e.g., empty array for skills).
+        
+        Fields to extract:
+        - skills: Array of strings (e.g. ["JavaScript", "React", "Node.js"])
+        - experience: One of ["Fresher", "Junior", "Mid-level", "Senior"]. Choose based on years of experience or roles.
+        - noticePeriod: String (e.g., "Immediate", "2 Weeks", "1 Month"). Guess based on typical patterns if not explicitly stated, or leave empty string if unsure.
+        - preferredLocations: Array of strings. Look for location preferences or current location.
+        - expectedSalary: Number. If not found, return 0. (Do not include currency symbols, just the number).
+
+        Resume Text:
+        """${resumeText}"""
+        
+        Respond ONLY with a valid JSON object matching this schema exactly:
+        {
+            "skills": ["string", "string"],
+            "experience": "string",
+            "noticePeriod": "string",
+            "preferredLocations": ["string", "string"],
+            "expectedSalary": number
+        }
+        `;
+        
+        const result = await model.generateContent(prompt);
+        return JSON.parse(result.response.text());
+    } catch (error) {
+        console.error("Profile Extraction Error:", error);
+        throw error;
+    }
+};

@@ -41,11 +41,26 @@ exports.uploadResume = async (req, res) => {
 
         userProfile.resumeText = extractedText;
 
+        // 3. Extract Structured Profile Data using AI
+        const extractedData = await aiService.extractProfileFromResume(extractedText);
+        
+        // 4. Update Profile with extracted data
+        if (extractedData.skills && extractedData.skills.length > 0) {
+            // Merge skills uniquely
+            userProfile.skills = [...new Set([...userProfile.skills, ...extractedData.skills])];
+        }
+        if (extractedData.experience) userProfile.experience = extractedData.experience;
+        if (extractedData.noticePeriod) userProfile.noticePeriod = extractedData.noticePeriod;
+        if (extractedData.expectedSalary) userProfile.expectedSalary = extractedData.expectedSalary;
+        if (extractedData.preferredLocations && extractedData.preferredLocations.length > 0) {
+            userProfile.preferredLocations = [...new Set([...userProfile.preferredLocations, ...extractedData.preferredLocations])];
+        }
+
         await userProfile.save();
 
         res.status(200).json({ 
-            message: 'Resume parsed and saved successfully',
-            extractedText 
+            message: 'Resume parsed and profile updated successfully',
+            extractedData 
         });
 
     } catch (error) {

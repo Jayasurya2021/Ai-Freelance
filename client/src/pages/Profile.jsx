@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useProfileMode } from '../context/ProfileContext';
-import { CheckCircle2, X, Settings, Briefcase } from 'lucide-react';
+import { CheckCircle2, X, Settings, Briefcase, UploadCloud } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AISettings from './AISettings';
 import SourceManager from './SourceManager';
@@ -67,6 +67,7 @@ const Profile = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -114,6 +115,48 @@ const Profile = () => {
     }
   };
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setMessage('');
+    
+    const formData = new FormData();
+    formData.append('resumeFile', file);
+    formData.append('userId', user?.id || '');
+    formData.append('mode', profileMode);
+
+    try {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/resume/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      if (data.extractedData) {
+         setProfileData(prev => ({
+             ...prev,
+             skills: data.extractedData.skills?.length > 0 ? [...new Set([...prev.skills, ...data.extractedData.skills])] : prev.skills,
+             experience: data.extractedData.experience || prev.experience,
+             noticePeriod: data.extractedData.noticePeriod || prev.noticePeriod,
+             expectedSalary: data.extractedData.expectedSalary || prev.expectedSalary,
+             preferredLocations: data.extractedData.preferredLocations?.length > 0 ? [...new Set([...prev.preferredLocations, ...data.extractedData.preferredLocations])] : prev.preferredLocations,
+         }));
+         setHasChanges(true);
+         setMessage('Resume parsed! Form auto-filled successfully.');
+      } else {
+         setMessage('Resume uploaded successfully.');
+      }
+      setTimeout(() => setMessage(''), 5000);
+    } catch (err) {
+      console.error('File upload error', err);
+      setMessage('Failed to upload and parse resume.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -122,6 +165,13 @@ const Profile = () => {
           <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">
             Configure your {profileMode === 'freelance' ? 'Freelance' : 'Job'} profile for AI-curated opportunities.
           </p>
+        </div>
+        <div>
+          <label className={`cursor-pointer bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-indigo-700 transition flex items-center gap-2 ${isUploading ? 'opacity-70 pointer-events-none' : ''}`}>
+             <UploadCloud size={18} />
+             {isUploading ? 'Uploading & Parsing...' : 'Upload Resume to Auto-Fill'}
+             <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFileUpload} />
+          </label>
         </div>
       </div>
 
