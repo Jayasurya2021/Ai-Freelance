@@ -3,6 +3,8 @@ const aiService = require('../services/aiService');
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 
+const parsePdf = typeof pdfParse === 'function' ? pdfParse : pdfParse.PDFParse;
+
 exports.uploadResume = async (req, res) => {
     try {
         if (!req.file) {
@@ -20,7 +22,7 @@ exports.uploadResume = async (req, res) => {
 
         // 1. Extract Text based on file type
         if (fileExtension === 'pdf') {
-            const data = await pdfParse(req.file.buffer);
+            const data = await parsePdf(req.file.buffer);
             extractedText = data.text;
         } else if (fileExtension === 'doc' || fileExtension === 'docx') {
             const data = await mammoth.extractRawText({ buffer: req.file.buffer });
