@@ -16,6 +16,7 @@ import SourceManager from './pages/SourceManager';
 import MonitoringDashboard from './pages/MonitoringDashboard';
 import JobFeed from './pages/JobFeed';
 import Watchlist from './pages/Watchlist';
+import JobTracker from './pages/JobTracker';
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ function App() {
               <Route path="sources" element={<SourceManager />} />
               <Route path="monitoring" element={<MonitoringDashboard />} />
               <Route path="feed" element={<JobFeed />} />
+              <Route path="job-tracker" element={<JobTracker />} />
               <Route path="watchlist" element={<Watchlist />} />
             </Route>
             </Routes>

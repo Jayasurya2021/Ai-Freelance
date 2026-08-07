@@ -18,6 +18,11 @@ const profileSchema = new mongoose.Schema({
     careerGoals: { type: [String], default: [] },
     resumeText: { type: String, default: '' },
     
+    // Job Mode Profile Details
+    expectedSalary: { type: Number, default: 0 },
+    noticePeriod: { type: String, default: '' },
+    preferredLocations: { type: [String], default: [] },
+    
     // Global Settings
     notificationThreshold: { type: Number, default: 70 }
 }, {

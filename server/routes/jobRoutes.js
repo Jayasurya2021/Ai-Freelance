@@ -9,5 +9,6 @@ router.post('/analyze', protect, jobController.analyzeManualJob);
 router.post('/approve-and-pitch', protect, jobController.approveAndPitch);
 router.post('/:id/save', protect, jobController.toggleSaveJob);
 router.post('/:id/hide', protect, jobController.toggleHideJob);
+router.put('/:id/status', protect, jobController.updateJobStatus);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useProfileMode } from '../context/ProfileContext';
 import { CheckCircle2, X, Settings, Briefcase } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AISettings from './AISettings';
@@ -50,6 +51,7 @@ const TagInput = ({ name, value, onChange, placeholder }) => {
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
+  const { profileMode } = useProfileMode();
   const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'settings'
   
   const [profileData, setProfileData] = useState({
@@ -59,6 +61,9 @@ const Profile = () => {
     hourlyRate: '',
     preferredTechnologies: [],
     portfolioProjects: [],
+    expectedSalary: '',
+    noticePeriod: '',
+    preferredLocations: [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -75,7 +80,10 @@ const Profile = () => {
           experience: data.experience || '',
           hourlyRate: data.hourlyRate || '',
           preferredTechnologies: data.preferredTechnologies || [],
-          portfolioProjects: data.portfolioProjects || []
+          portfolioProjects: data.portfolioProjects || [],
+          expectedSalary: data.expectedSalary || '',
+          noticePeriod: data.noticePeriod || '',
+          preferredLocations: data.preferredLocations || []
         });
       } catch (err) {
         console.error('Failed to fetch profile', err);
@@ -112,7 +120,7 @@ const Profile = () => {
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white tracking-tight">Agent Profile</h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">
-            Configure your Freelance profile for AI-curated opportunities.
+            Configure your {profileMode === 'freelance' ? 'Freelance' : 'Job'} profile for AI-curated opportunities.
           </p>
         </div>
       </div>
@@ -131,7 +139,7 @@ const Profile = () => {
             className={`pb-4 text-sm font-bold transition-colors ${activeTab === 'profile' ? 'border-b-2 border-emerald-500 text-emerald-600' : 'text-zinc-500 hover:text-zinc-800'}`}
         >
           <Briefcase size={16} className="inline mr-2"/>
-          Freelance Profile
+          {profileMode === 'freelance' ? 'Freelance Profile' : 'Job Profile'}
         </button>
         <button 
             type="button"
@@ -148,11 +156,13 @@ const Profile = () => {
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
                 <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200">
-                  <h3 className="text-lg font-bold text-zinc-900">Freelance Core details</h3>
+                  <h3 className="text-lg font-bold text-zinc-900">
+                    {profileMode === 'freelance' ? 'Freelance Core Details' : 'Job Core Details'}
+                  </h3>
                 </div>
                 <div className="divide-y divide-zinc-100">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Freelance Skills</h4></div>
+                    <div><h4 className="text-sm font-bold text-zinc-900">Skills</h4></div>
                     <div className="md:col-span-2"><TagInput name="skills" value={profileData.skills} onChange={handleChange} placeholder="React, Node, Figma" /></div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
@@ -171,37 +181,60 @@ const Profile = () => {
                         </select>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
-                    <div><h4 className="text-sm font-bold text-zinc-900">Hourly Rate ($)</h4></div>
-                    <div className="md:col-span-2">
-                        <input type="number" name="hourlyRate" value={profileData.hourlyRate} onChange={handleChange} placeholder="50" className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 focus:border-emerald-500 outline-none" />
+                  {profileMode === 'freelance' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
+                      <div><h4 className="text-sm font-bold text-zinc-900">Hourly Rate ($)</h4></div>
+                      <div className="md:col-span-2">
+                          <input type="number" name="hourlyRate" value={profileData.hourlyRate} onChange={handleChange} placeholder="50" className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 focus:border-emerald-500 outline-none" />
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
+                        <div><h4 className="text-sm font-bold text-zinc-900">Expected Salary ($)</h4></div>
+                        <div className="md:col-span-2">
+                            <input type="number" name="expectedSalary" value={profileData.expectedSalary} onChange={handleChange} placeholder="120000" className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 focus:border-emerald-500 outline-none" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
+                        <div><h4 className="text-sm font-bold text-zinc-900">Notice Period</h4></div>
+                        <div className="md:col-span-2">
+                            <input type="text" name="noticePeriod" value={profileData.noticePeriod} onChange={handleChange} placeholder="e.g. 2 weeks, Immediate" className="w-full p-3 border rounded-xl bg-zinc-50/50 border-zinc-200 focus:border-emerald-500 outline-none" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 md:p-6">
+                        <div><h4 className="text-sm font-bold text-zinc-900">Preferred Locations</h4></div>
+                        <div className="md:col-span-2"><TagInput name="preferredLocations" value={profileData.preferredLocations} onChange={handleChange} placeholder="Remote, New York, SF" /></div>
+                      </div>
+                    </>
+                  )}
                 </div>
             </div>
 
-            <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
-                <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200 flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-zinc-900">Freelance Portfolio</h3>
-                  <button type="button" onClick={() => { setProfileData({...profileData, portfolioProjects: [...profileData.portfolioProjects, { title: '', link: '', description: '' }]}); setHasChanges(true); }} className="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-600 transition">Add Project</button>
-                </div>
-                <div className="p-5 space-y-4">
-                  {(!profileData.portfolioProjects || profileData.portfolioProjects.length === 0) && <p className="text-zinc-500 text-sm">No projects added. AI uses these to write proposals.</p>}
-                  {(profileData.portfolioProjects || []).map((proj, i) => (
-                    <div key={i} className="p-4 bg-zinc-50/50 border border-zinc-200 rounded-xl relative space-y-3">
-                        <button type="button" onClick={() => {
-                            const newP = [...profileData.portfolioProjects];
-                            newP.splice(i, 1);
-                            setProfileData({...profileData, portfolioProjects: newP});
-                            setHasChanges(true);
-                        }} className="absolute top-4 right-4 text-red-500"><X size={16}/></button>
-                        <input type="text" placeholder="Project Title" value={proj.title} onChange={(e) => { const newP = [...profileData.portfolioProjects]; newP[i].title = e.target.value; setProfileData({...profileData, portfolioProjects: newP}); setHasChanges(true); }} className="w-full md:w-2/3 p-2 border border-zinc-200 rounded-lg text-sm font-bold"/>
-                        <input type="url" placeholder="Live Link" value={proj.link} onChange={(e) => { const newP = [...profileData.portfolioProjects]; newP[i].link = e.target.value; setProfileData({...profileData, portfolioProjects: newP}); setHasChanges(true); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm"/>
-                        <textarea placeholder="Description" value={proj.description} onChange={(e) => { const newP = [...profileData.portfolioProjects]; newP[i].description = e.target.value; setProfileData({...profileData, portfolioProjects: newP}); setHasChanges(true); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm h-20 resize-none"></textarea>
-                    </div>
-                  ))}
-                </div>
-            </div>
+            {profileMode === 'freelance' && (
+              <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
+                  <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200 flex justify-between items-center">
+                    <h3 className="text-lg font-bold text-zinc-900">Freelance Portfolio</h3>
+                    <button type="button" onClick={() => { setProfileData({...profileData, portfolioProjects: [...profileData.portfolioProjects, { title: '', link: '', description: '' }]}); setHasChanges(true); }} className="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-600 transition">Add Project</button>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    {(!profileData.portfolioProjects || profileData.portfolioProjects.length === 0) && <p className="text-zinc-500 text-sm">No projects added. AI uses these to write proposals.</p>}
+                    {(profileData.portfolioProjects || []).map((proj, i) => (
+                      <div key={i} className="p-4 bg-zinc-50/50 border border-zinc-200 rounded-xl relative space-y-3">
+                          <button type="button" onClick={() => {
+                              const newP = [...profileData.portfolioProjects];
+                              newP.splice(i, 1);
+                              setProfileData({...profileData, portfolioProjects: newP});
+                              setHasChanges(true);
+                          }} className="absolute top-4 right-4 text-red-500"><X size={16}/></button>
+                          <input type="text" placeholder="Project Title" value={proj.title} onChange={(e) => { const newP = [...profileData.portfolioProjects]; newP[i].title = e.target.value; setProfileData({...profileData, portfolioProjects: newP}); setHasChanges(true); }} className="w-full md:w-2/3 p-2 border border-zinc-200 rounded-lg text-sm font-bold"/>
+                          <input type="url" placeholder="Live Link" value={proj.link} onChange={(e) => { const newP = [...profileData.portfolioProjects]; newP[i].link = e.target.value; setProfileData({...profileData, portfolioProjects: newP}); setHasChanges(true); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm"/>
+                          <textarea placeholder="Description" value={proj.description} onChange={(e) => { const newP = [...profileData.portfolioProjects]; newP[i].description = e.target.value; setProfileData({...profileData, portfolioProjects: newP}); setHasChanges(true); }} className="w-full p-2 border border-zinc-200 rounded-lg text-sm h-20 resize-none"></textarea>
+                      </div>
+                    ))}
+                  </div>
+              </div>
+            )}
           </div>
         )}
 

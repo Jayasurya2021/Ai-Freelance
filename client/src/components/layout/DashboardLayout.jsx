@@ -11,6 +11,7 @@ const DashboardLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { profileMode, setProfileMode } = useProfileMode();
   const queryClient = useQueryClient();
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -50,7 +51,16 @@ const DashboardLayout = () => {
     { name: 'Monitoring', path: '/monitoring', icon: Activity }
   ];
 
-  const navItems = freelanceNavItems;
+  const jobNavItems = [
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Job Feed', path: '/feed', icon: List },
+    { name: 'Job Tracker', path: '/job-tracker', icon: LayoutDashboard },
+    { name: 'Analyzer', path: '/url-analyzer', icon: Globe },
+    { name: 'Saved', path: '/saved', icon: Bookmark },
+    { name: 'Monitoring', path: '/monitoring', icon: Activity }
+  ];
+
+  const navItems = profileMode === 'job' ? jobNavItems : freelanceNavItems;
 
   return (
     <div className="flex flex-col min-h-screen bg-[#fafafa]">
@@ -70,7 +80,25 @@ const DashboardLayout = () => {
                   </h1>
               </Link>
               
-              {/* Profile Switcher Removed */}
+              {/* Profile Switcher */}
+              <div className="hidden lg:flex bg-zinc-100 rounded-xl p-1 items-center gap-1 border border-zinc-200">
+                <button
+                  onClick={() => setProfileMode('freelance')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    profileMode === 'freelance' ? 'bg-white text-indigo-700 shadow-sm border border-indigo-100' : 'text-zinc-500 hover:text-zinc-900'
+                  }`}
+                >
+                  Freelance
+                </button>
+                <button
+                  onClick={() => setProfileMode('job')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    profileMode === 'job' ? 'bg-white text-indigo-700 shadow-sm border border-indigo-100' : 'text-zinc-500 hover:text-zinc-900'
+                  }`}
+                >
+                  Job Mode
+                </button>
+              </div>
             </div>
             
             {/* Center: Nav Items */}
@@ -184,7 +212,23 @@ const DashboardLayout = () => {
               className="sm:hidden border-t border-zinc-200 bg-white"
             >
               <div className="pt-2 pb-3 space-y-1">
-                {/* Mobile Mode Switcher Removed */}
+                {/* Mobile Mode Switcher */}
+                <div className="px-4 py-3 border-b border-zinc-100 mb-2">
+                  <div className="flex bg-zinc-100 p-1 rounded-xl w-full">
+                     <button
+                        onClick={() => { setProfileMode('freelance'); setMobileMenuOpen(false); }}
+                        className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${profileMode === 'freelance' ? 'bg-white text-indigo-700 shadow-sm' : 'text-zinc-500'}`}
+                     >
+                       Freelance
+                     </button>
+                     <button
+                        onClick={() => { setProfileMode('job'); setMobileMenuOpen(false); }}
+                        className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${profileMode === 'job' ? 'bg-white text-indigo-700 shadow-sm' : 'text-zinc-500'}`}
+                     >
+                       Job Mode
+                     </button>
+                  </div>
+                </div>
 
                 {[...navItems, { name: 'Profile Settings', path: '/profile', icon: User }].map((item) => {
                   const Icon = item.icon;

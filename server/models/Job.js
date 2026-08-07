@@ -39,7 +39,7 @@ const jobSchema = new mongoose.Schema({
     
     // Status & User Ownership
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile', required: true },
-    status: { type: String, enum: ['new', 'saved', 'hidden', 'applied', 'interviewing', 'rejected'], default: 'new' }
+    status: { type: String, enum: ['new', 'saved', 'hidden', 'applied', 'interviewing', 'offer', 'rejected'], default: 'new' }
 }, {
     timestamps: true
 });

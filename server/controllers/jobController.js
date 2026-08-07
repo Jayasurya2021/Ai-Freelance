@@ -181,3 +181,27 @@ exports.approveAndPitch = async (req, res) => {
         res.status(500).json({ message: 'Server error generating pitch' });
     }
 };
+
+exports.updateJobStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+        const validStatuses = ['new', 'saved', 'hidden', 'applied', 'interviewing', 'offer', 'rejected'];
+        
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
+
+        const job = await Job.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user.id },
+            { $set: { status } },
+            { new: true }
+        ).select('-embedding');
+
+        if (!job) return res.status(404).json({ message: 'Job not found' });
+        
+        res.status(200).json(job);
+    } catch (error) {
+        console.error('Update job status error:', error);
+        res.status(500).json({ message: 'Server error while updating job status' });
+    }
+};
