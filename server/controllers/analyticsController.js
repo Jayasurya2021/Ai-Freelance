@@ -95,7 +95,7 @@ exports.recordLearningFeedback = async (req, res) => {
 const profileCompletenessService = require('../services/profileCompletenessService');
 const Profile = require('../models/Profile');
 const SearchProfile = require('../models/SearchProfile');
-const aiProvider = require('../services/aiProvider');
+const aiService = require('../services/aiService');
 
 exports.getProfileCompleteness = async (req, res) => {
     try {
@@ -137,7 +137,7 @@ They found ${recentOpps.length} opportunities this week.
 Based on their profile and this volume, generate a 1-sentence actionable insight.
 Example: "Your React opportunities increased by 22% this week, consider adding Next.js to your skills."`;
 
-        const insight = await aiProvider.generateResponse(userProfile, prompt, "Generate Insight");
+        const insight = await aiService.generateContentWithFallback(prompt, req.user.id, false);
         
         res.json({ insight: insight.replace(/["']/g, '') });
     } catch (err) {
