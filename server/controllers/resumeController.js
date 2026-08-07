@@ -42,7 +42,7 @@ exports.uploadResume = async (req, res) => {
         userProfile.resumeText = extractedText;
 
         // 3. Extract Structured Profile Data using AI
-        const extractedData = await aiService.extractProfileFromResume(extractedText);
+        const extractedData = await aiService.extractProfileFromResume(extractedText, userId);
         
         // 4. Update Profile with extracted data
         if (extractedData.skills && extractedData.skills.length > 0) {
@@ -86,7 +86,7 @@ exports.checkAts = async (req, res) => {
             return res.status(400).json({ message: 'No resume uploaded.' });
         }
 
-        const result = await aiService.checkAtsMatch(userProfile.resumeText, jobDescription);
+        const result = await aiService.checkAtsMatch(userProfile.resumeText, jobDescription, userId);
         res.status(200).json(result);
 
     } catch (error) {
@@ -112,7 +112,7 @@ exports.generateTailoredResume = async (req, res) => {
             return res.status(400).json({ message: 'No base resume uploaded. Please upload one first.' });
         }
 
-        const tailoredResume = await aiService.generateTailoredResume(userProfile.resumeText, jobDescription, 'freelance');
+        const tailoredResume = await aiService.generateTailoredResume(userProfile.resumeText, jobDescription, mode || 'freelance', userId);
         res.status(200).json({ tailoredResume });
 
     } catch (error) {

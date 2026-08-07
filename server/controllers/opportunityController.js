@@ -28,7 +28,7 @@ exports.getOpportunities = async (req, res) => {
 
         if (searchQuery) {
             // Semantic Search Flow
-            const queryEmbedding = await aiService.generateEmbedding(searchQuery);
+            const queryEmbedding = await aiService.generateEmbedding(searchQuery, req.user.id);
             
             // Get all opportunities that have an embedding
             const searchBaseQuery = { embedding: { $exists: true, $ne: [] } };

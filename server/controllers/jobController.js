@@ -43,7 +43,7 @@ exports.getJobs = async (req, res) => {
 
         if (searchQuery) {
             // Semantic Search Flow
-            const queryEmbedding = await aiService.generateEmbedding(searchQuery);
+            const queryEmbedding = await aiService.generateEmbedding(searchQuery, req.user.id);
             const searchBaseQuery = { ...baseQuery, embedding: { $exists: true, $ne: [] } };
             const allJobs = await Job.find(searchBaseQuery);
             
@@ -158,7 +158,7 @@ exports.approveAndPitch = async (req, res) => {
         const userProfile = await Profile.findById(req.user.id);
         if (!userProfile) return res.status(404).json({ message: 'User profile not found' });
 
-        const embedding = await aiService.generateEmbedding(jobData.description);
+        const embedding = await aiService.generateEmbedding(jobData.description, req.user.id);
 
         // Save the job
         const job = new Job({

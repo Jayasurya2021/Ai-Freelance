@@ -42,7 +42,7 @@ exports.ingestRSSFeed = async (feedUrl, sourceName, platform, userId) => {
             }
 
             // 2. Generate Semantic Embedding
-            const embedding = await aiService.generateEmbedding(textToAnalyze);
+            const embedding = await aiService.generateEmbedding(textToAnalyze, userId);
 
             // 3. Save to DB
             const job = new Job({
@@ -88,7 +88,7 @@ exports.ingestUrl = async (url, sourceName, platform, userId) => {
         const userProfile = await Profile.findById(userId);
         
         const analysis = await aiService.analyzeOpportunity(textToAnalyze, userProfile);
-        const embedding = await aiService.generateEmbedding(textToAnalyze);
+        const embedding = await aiService.generateEmbedding(textToAnalyze, userId);
 
         const job = new Job({
             userId: userId,
@@ -138,7 +138,7 @@ exports.ingestApi = async (apiUrl, sourceName, platform, userId) => {
                 continue;
             }
 
-            const embedding = await aiService.generateEmbedding(item.content);
+            const embedding = await aiService.generateEmbedding(item.content, userId);
 
             const job = new Job({
                 userId: userId,

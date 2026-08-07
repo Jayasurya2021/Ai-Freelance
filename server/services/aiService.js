@@ -1,19 +1,84 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { OpenAI } = require('openai');
+const AISettings = require('../models/AISettings');
 
-// Initialize Gemini
-// Ensure process.env.GEMINI_API_KEY is set
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'MISSING_API_KEY');
+// Helper to call specific provider
+async function callProvider(provider, apiKey, prompt, isJson) {
+    if (provider === 'gemini') {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash", 
+            generationConfig: isJson ? { responseMimeType: "application/json" } : {} 
+        });
+        const result = await model.generateContent(prompt);
+        return result.response.text();
+    } else if (provider === 'groq') {
+        const openai = new OpenAI({ apiKey, baseURL: "https://api.groq.com/openai/v1" });
+        const response = await openai.chat.completions.create({
+            model: 'llama-3.1-70b-versatile',
+            messages: [{ role: 'user', content: prompt }],
+            response_format: isJson ? { type: "json_object" } : undefined
+        });
+        return response.choices[0].message.content;
+    } else if (provider === 'openai') {
+        const openai = new OpenAI({ apiKey });
+        const response = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: prompt }],
+            response_format: isJson ? { type: "json_object" } : undefined
+        });
+        return response.choices[0].message.content;
+    } else {
+        throw new Error(`Unsupported provider: ${provider}`);
+    }
+}
+
+// Unified content generator with fallback
+async function generateContentWithFallback(prompt, userId, isJson = false) {
+    let userProvider = null;
+    let userKey = null;
+
+    if (userId) {
+        try {
+            const settings = await AISettings.findOne({ userId });
+            if (settings) {
+                userProvider = settings.provider;
+                if (userProvider === 'gemini') userKey = settings.geminiKey;
+                if (userProvider === 'groq') userKey = settings.groqKey;
+                if (userProvider === 'openai') userKey = settings.openaiKey;
+            }
+        } catch (e) {
+            console.error("Error fetching AISettings:", e.message);
+        }
+    }
+
+    // Try user key first
+    if (userProvider && userKey && userKey !== '********') {
+        try {
+            const text = await callProvider(userProvider, userKey, prompt, isJson);
+            if (isJson) return JSON.parse(text);
+            return text;
+        } catch (err) {
+            console.warn(`User AI provider ${userProvider} failed. Falling back to default Groq. Error: ${err.message}`);
+        }
+    }
+
+    // Fallback to default Groq key
+    const defaultKey = process.env.Grok_Ai_Key;
+    if (!defaultKey) {
+        throw new Error("No default Grok_Ai_Key found in environment");
+    }
+    
+    const fallbackText = await callProvider('groq', defaultKey, prompt, isJson);
+    if (isJson) return JSON.parse(fallbackText);
+    return fallbackText;
+}
 
 /**
- * Analyzes a job opportunity against a user profile using Gemini.
- * @param {string} opportunityText - The raw text/description of the job.
- * @param {Object} userProfile - The user's profile object.
- * @returns {Promise<Object>} - The JSON analysis.
+ * Analyzes a job opportunity against a user profile.
  */
 exports.analyzeOpportunity = async (opportunityText, userProfile) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" }});
-        
         const profileContextStr = userProfile ? `
         Skills: ${userProfile.skills?.join(', ') || 'Not specified'}
         Experience: ${userProfile.experience || 'Not specified'}
@@ -58,8 +123,8 @@ exports.analyzeOpportunity = async (opportunityText, userProfile) => {
           "preferredSkills": ["string", "string"],
           "atsKeywords": ["string", "string"],
           "benefits": ["string", "string"],
-          "matchScore": number,
-          "recommendation": "Apply" | "Maybe" | "Skip",
+          "matchScore": 85,
+          "recommendation": "Apply",
           "recommendationReason": "string",
           "missingSkills": ["string", "string"],
           "learningSuggestions": ["string", "string"],
@@ -69,9 +134,7 @@ exports.analyzeOpportunity = async (opportunityText, userProfile) => {
         }
         `;
 
-        const result = await model.generateContent(prompt);
-        const responseText = result.response.text();
-        return JSON.parse(responseText);
+        return await generateContentWithFallback(prompt, userProfile?._id, true);
     } catch (error) {
         console.error("AI Analysis Error:", error);
         throw error;
@@ -80,32 +143,55 @@ exports.analyzeOpportunity = async (opportunityText, userProfile) => {
 
 /**
  * Generates an embedding for semantic search.
- * @param {string} text - The text to embed (e.g. title + description)
- * @returns {Promise<number[]>} - The embedding array.
  */
-exports.generateEmbedding = async (text) => {
+exports.generateEmbedding = async (text, userId = null) => {
     try {
-        // text-embedding-004 is the recommended model for embeddings
-        const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
-        const result = await model.embedContent(text);
-        return result.embedding.values;
+        let userProvider = null;
+        let userKey = null;
+        
+        if (userId) {
+            const settings = await AISettings.findOne({ userId });
+            if (settings) {
+                userProvider = settings.provider;
+                if (userProvider === 'gemini') userKey = settings.geminiKey;
+                if (userProvider === 'openai') userKey = settings.openaiKey;
+            }
+        }
+
+        if (userProvider === 'openai' && userKey && userKey !== '********') {
+            try {
+                const openai = new OpenAI({ apiKey: userKey });
+                const result = await openai.embeddings.create({ input: text, model: 'text-embedding-3-small' });
+                return result.data[0].embedding;
+            } catch (e) {
+                console.warn("OpenAI Embedding Failed. Falling back.", e.message);
+            }
+        }
+
+        if (userProvider === 'gemini' && userKey && userKey !== '********') {
+            try {
+                const genAI = new GoogleGenerativeAI(userKey);
+                const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+                const result = await model.embedContent(text);
+                return result.embedding.values;
+            } catch (e) {
+                console.warn("Gemini Embedding Failed. Falling back.", e.message);
+            }
+        }
+
+        // Just return empty array as fallback so it doesn't crash features that don't need semantic search.
+        return [];
     } catch (error) {
         console.error("AI Embedding Error:", error);
-        // Fallback to empty array if embedding fails
         return [];
     }
 };
 
 /**
- * Generates a personalized proposal based on the opportunity and user profile.
- * @param {Object} opportunity - The opportunity details.
- * @param {Object} userProfile - The user's profile.
- * @returns {Promise<string>} - The generated proposal text.
+ * Generates a personalized proposal.
  */
 exports.generateProposal = async (opportunity, userProfile) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        
         const profileContextStr = userProfile ? `
         Name: ${userProfile.name || 'Professional'}
         Skills: ${userProfile.skills?.join(', ') || 'Not specified'}
@@ -138,8 +224,7 @@ exports.generateProposal = async (opportunity, userProfile) => {
         Output ONLY the proposal text.
         `;
 
-        const result = await model.generateContent(prompt);
-        return result.response.text();
+        return await generateContentWithFallback(prompt, userProfile?._id, false);
     } catch (error) {
         console.error("AI Proposal Generation Error:", error);
         throw error;
@@ -149,10 +234,8 @@ exports.generateProposal = async (opportunity, userProfile) => {
 /**
  * Checks ATS score of a resume against a job description.
  */
-exports.checkAtsMatch = async (resumeText, jobDescription) => {
+exports.checkAtsMatch = async (resumeText, jobDescription, userId) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
-        
         const prompt = `
         You are an expert ATS (Applicant Tracking System) analyzer.
         Compare the following Resume against the Job Description.
@@ -165,15 +248,14 @@ exports.checkAtsMatch = async (resumeText, jobDescription) => {
         
         Analyze the match and return a JSON object with this exact schema:
         {
-            "score": number (0-100),
-            "matchingKeywords": [string, string],
-            "missingKeywords": [string, string],
-            "improvementTips": [string, string]
+            "score": 80,
+            "matchingKeywords": ["string", "string"],
+            "missingKeywords": ["string", "string"],
+            "improvementTips": ["string", "string"]
         }
         `;
         
-        const result = await model.generateContent(prompt);
-        return JSON.parse(result.response.text());
+        return await generateContentWithFallback(prompt, userId, true);
     } catch (error) {
         console.error("ATS Check Error:", error);
         throw error;
@@ -183,10 +265,8 @@ exports.checkAtsMatch = async (resumeText, jobDescription) => {
 /**
  * Generates a tailored resume based on a base resume and a job description.
  */
-exports.generateTailoredResume = async (baseResumeText, jobDescription, mode) => {
+exports.generateTailoredResume = async (baseResumeText, jobDescription, mode, userId) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        
         const prompt = `
         You are an expert ${mode === 'freelance' ? 'Freelance Profile Optimizer' : 'Executive Resume Writer'}.
         Your goal is to rewrite the provided Base Resume to perfectly align with the target Job Description to maximize ATS score and recruiter interest, without lying or inventing experience.
@@ -204,8 +284,7 @@ exports.generateTailoredResume = async (baseResumeText, jobDescription, mode) =>
         4. Output ONLY the tailored resume content formatted nicely in Markdown (with headers, bullet points). Do not include any introductory remarks.
         `;
         
-        const result = await model.generateContent(prompt);
-        return result.response.text();
+        return await generateContentWithFallback(prompt, userId, false);
     } catch (error) {
         console.error("Resume Generation Error:", error);
         throw error;
@@ -215,10 +294,8 @@ exports.generateTailoredResume = async (baseResumeText, jobDescription, mode) =>
 /**
  * Extracts structured profile data from raw resume text.
  */
-exports.extractProfileFromResume = async (resumeText) => {
+exports.extractProfileFromResume = async (resumeText, userId) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
-        
         const prompt = `
         You are an expert HR parser.
         Extract the following information from the provided Resume text. 
@@ -240,12 +317,11 @@ exports.extractProfileFromResume = async (resumeText) => {
             "experience": "string",
             "noticePeriod": "string",
             "preferredLocations": ["string", "string"],
-            "expectedSalary": number
+            "expectedSalary": 100000
         }
         `;
         
-        const result = await model.generateContent(prompt);
-        return JSON.parse(result.response.text());
+        return await generateContentWithFallback(prompt, userId, true);
     } catch (error) {
         console.error("Profile Extraction Error:", error);
         throw error;
