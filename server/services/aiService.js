@@ -12,7 +12,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'MISSING_API_
  */
 exports.analyzeOpportunity = async (opportunityText, userProfile) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash", generationConfig: { responseMimeType: "application/json" }});
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" }});
         
         const profileContextStr = userProfile ? `
         Skills: ${userProfile.skills?.join(', ') || 'Not specified'}
@@ -104,7 +104,7 @@ exports.generateEmbedding = async (text) => {
  */
 exports.generateProposal = async (opportunity, userProfile) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         
         const profileContextStr = userProfile ? `
         Name: ${userProfile.name || 'Professional'}
@@ -151,7 +151,7 @@ exports.generateProposal = async (opportunity, userProfile) => {
  */
 exports.checkAtsMatch = async (resumeText, jobDescription) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash", generationConfig: { responseMimeType: "application/json" } });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
         
         const prompt = `
         You are an expert ATS (Applicant Tracking System) analyzer.
@@ -185,7 +185,7 @@ exports.checkAtsMatch = async (resumeText, jobDescription) => {
  */
 exports.generateTailoredResume = async (baseResumeText, jobDescription, mode) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         
         const prompt = `
         You are an expert ${mode === 'freelance' ? 'Freelance Profile Optimizer' : 'Executive Resume Writer'}.
@@ -217,7 +217,7 @@ exports.generateTailoredResume = async (baseResumeText, jobDescription, mode) =>
  */
 exports.extractProfileFromResume = async (resumeText) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash", generationConfig: { responseMimeType: "application/json" } });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { responseMimeType: "application/json" } });
         
         const prompt = `
         You are an expert HR parser.
