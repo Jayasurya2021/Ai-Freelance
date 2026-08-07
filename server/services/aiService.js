@@ -15,7 +15,7 @@ async function callProvider(provider, apiKey, prompt, isJson) {
     } else if (provider === 'groq') {
         const openai = new OpenAI({ apiKey, baseURL: "https://api.groq.com/openai/v1" });
         const response = await openai.chat.completions.create({
-            model: 'llama-3.1-70b-versatile',
+            model: 'llama-3.3-70b-versatile',
             messages: [{ role: 'user', content: prompt }],
             response_format: isJson ? { type: "json_object" } : undefined
         });
