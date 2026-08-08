@@ -66,7 +66,8 @@ exports.uploadResume = async (req, res) => {
 
         res.status(200).json({ 
             message: 'Resume parsed and profile updated successfully',
-            extractedData 
+            extractedData,
+            resumeText: extractedText
         });
 
     } catch (error) {
