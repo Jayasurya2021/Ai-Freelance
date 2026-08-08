@@ -218,6 +218,32 @@ const Profile = () => {
       <div className="space-y-8">
         {activeTab === 'profile' && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {/* Main Upload Hero Section */}
+            <div className="flex flex-col items-center justify-center p-12 bg-white border border-zinc-200 rounded-2xl shadow-sm text-center">
+              <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
+                <UploadCloud className="text-indigo-500 w-8 h-8" />
+              </div>
+              <h2 className="text-2xl font-bold text-zinc-900 mb-6">Upload your reference resume</h2>
+              
+              <div className="flex items-center gap-4 mb-6">
+                <button 
+                  type="button"
+                  onClick={() => setIsResumeModalOpen(true)}
+                  className="px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl flex items-center gap-2 hover:bg-indigo-700 transition shadow-sm"
+                >
+                  <UploadCloud size={18} />
+                  Upload File
+                </button>
+                <button type="button" className="px-6 py-2.5 bg-white border border-zinc-200 text-zinc-700 font-bold rounded-xl flex items-center gap-2 hover:bg-zinc-50 transition shadow-sm">
+                  <FileText size={18} />
+                  Quick Draft
+                </button>
+              </div>
+              
+              <p className="text-zinc-500 max-w-md text-sm leading-relaxed">
+                To get started, please upload your core resume. We'll parse it and you can use it to generate tailored versions for any job application.
+              </p>
+            </div>
             <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
                 <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200">
                   <h3 className="text-lg font-bold text-zinc-900">
@@ -339,12 +365,6 @@ const Profile = () => {
         )}
 
         <div className="pt-4 flex justify-end sticky bottom-6 z-10 gap-4">
-          {activeTab === 'profile' && (
-            <button type="button" onClick={() => setIsResumeModalOpen(true)} className="px-6 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700">
-              <UploadCloud size={18} />
-              Upload Resume to Auto-Fill
-            </button>
-          )}
           <button type="button" onClick={handleSubmit} disabled={loading || !hasChanges} className={`px-8 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-2 ${hasChanges ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-zinc-200 text-zinc-500 cursor-not-allowed'}`}>
             {loading ? 'Saving...' : 'Save All Configurations'}
           </button>
