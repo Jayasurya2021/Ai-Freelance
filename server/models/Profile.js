@@ -17,6 +17,7 @@ const profileSchema = new mongoose.Schema({
     proposalTemplate: { type: String, default: '' },
     careerGoals: { type: [String], default: [] },
     resumeText: { type: String, default: '' },
+    resumeFileUrl: { type: String, default: '' },
     
     // Job Mode Profile Details
     expectedSalary: { type: Number, default: 0 },

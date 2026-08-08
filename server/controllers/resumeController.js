@@ -2,6 +2,8 @@ const Profile = require('../models/Profile');
 const aiService = require('../services/aiService');
 const { PDFParse } = require('pdf-parse');
 const mammoth = require('mammoth');
+const fs = require('fs');
+const path = require('path');
 
 exports.uploadResume = async (req, res) => {
     try {
@@ -38,13 +40,33 @@ exports.uploadResume = async (req, res) => {
             return res.status(400).json({ message: 'Could not extract any text from the document.' });
         }
 
-        // 2. Save text to profile
+        // 2. Save text to profile and file to disk
         const userProfile = await Profile.findById(userId);
         if (!userProfile) {
             return res.status(404).json({ message: 'Profile not found' });
         }
 
         userProfile.resumeText = extractedText;
+
+        // Save file to disk
+        const uploadDir = path.join(__dirname, '../public/uploads/resumes');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        // Remove old file if it exists
+        if (userProfile.resumeFileUrl) {
+            const oldFilePath = path.join(__dirname, '../public', userProfile.resumeFileUrl);
+            if (fs.existsSync(oldFilePath)) {
+                fs.unlinkSync(oldFilePath);
+            }
+        }
+
+        const fileName = `${userId}_${Date.now()}.${fileExtension}`;
+        const filePath = path.join(uploadDir, fileName);
+        fs.writeFileSync(filePath, req.file.buffer);
+        
+        userProfile.resumeFileUrl = `/uploads/resumes/${fileName}`;
 
         // 3. Extract Structured Profile Data using AI
         const extractedData = await aiService.extractProfileFromResume(extractedText, userId);
@@ -67,7 +89,8 @@ exports.uploadResume = async (req, res) => {
         res.status(200).json({ 
             message: 'Resume parsed and profile updated successfully',
             extractedData,
-            resumeText: extractedText
+            resumeText: extractedText,
+            resumeFileUrl: userProfile.resumeFileUrl
         });
 
     } catch (error) {

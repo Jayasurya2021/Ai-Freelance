@@ -65,6 +65,7 @@ const Profile = () => {
     noticePeriod: '',
     preferredLocations: [],
     resumeText: '',
+    resumeFileUrl: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -92,7 +93,8 @@ const Profile = () => {
           expectedSalary: data.expectedSalary || '',
           noticePeriod: data.noticePeriod || '',
           preferredLocations: data.preferredLocations || [],
-          resumeText: data.resumeText || ''
+          resumeText: data.resumeText || '',
+          resumeFileUrl: data.resumeFileUrl || ''
         });
       } catch (err) {
         console.error('Failed to fetch profile', err);
@@ -124,7 +126,7 @@ const Profile = () => {
   };
 
   const handleRemoveResume = () => {
-    setProfileData({ ...profileData, resumeText: '' });
+    setProfileData({ ...profileData, resumeText: '', resumeFileUrl: '' });
     setHasChanges(true);
   };
 
@@ -170,7 +172,8 @@ const Profile = () => {
              noticePeriod: data.extractedData.noticePeriod || prev.noticePeriod,
              expectedSalary: data.extractedData.expectedSalary || prev.expectedSalary,
              preferredLocations: data.extractedData.preferredLocations?.length > 0 ? [...new Set([...prev.preferredLocations, ...data.extractedData.preferredLocations])] : prev.preferredLocations,
-             resumeText: data.resumeText || prev.resumeText
+             resumeText: data.resumeText || prev.resumeText,
+             resumeFileUrl: data.resumeFileUrl || prev.resumeFileUrl
          }));
          setHasChanges(true);
          setMessage('Resume parsed! Form auto-filled successfully.');
@@ -499,12 +502,25 @@ const Profile = () => {
                 </button>
               </div>
               
-              <div className="p-6 flex-1 overflow-y-auto bg-zinc-50 dark:bg-zinc-900/50">
-                <p className="text-sm text-zinc-500 mb-4">
-                  This is the raw text extracted from your resume. The AI uses this text to generate proposals and fill out your profile.
+              <div className="p-6 flex-1 overflow-hidden bg-zinc-50 dark:bg-zinc-900/50 flex flex-col">
+                <p className="text-sm text-zinc-500 mb-4 shrink-0">
+                  This is the original document you uploaded.
                 </p>
-                <div className="w-full p-4 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-mono text-sm leading-relaxed whitespace-pre-wrap select-text">
-                  {profileData.resumeText}
+                <div className="w-full flex-1 border border-zinc-300 dark:border-zinc-700 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 min-h-[500px]">
+                  {profileData.resumeFileUrl ? (
+                    <object data={`${import.meta.env.VITE_API_URL}${profileData.resumeFileUrl}`} type="application/pdf" className="w-full h-full min-h-[500px]">
+                      <div className="p-12 text-center text-zinc-500 flex flex-col items-center justify-center h-full">
+                        <FileText size={48} className="mb-4 text-zinc-300" />
+                        <p>PDF preview not available in this browser.</p>
+                        <a href={`${import.meta.env.VITE_API_URL}${profileData.resumeFileUrl}`} target="_blank" rel="noreferrer" className="text-indigo-500 hover:underline mt-2">Download Resume</a>
+                      </div>
+                    </object>
+                  ) : (
+                    <div className="p-12 text-center text-zinc-500 flex flex-col items-center justify-center h-full">
+                      <p>No document file available for preview.</p>
+                      <p className="text-xs mt-2 text-zinc-400">(Your resume was uploaded before document storage was enabled)</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
