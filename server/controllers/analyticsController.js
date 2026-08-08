@@ -3,6 +3,11 @@ const Opportunity = require('../models/Opportunity');
 const OpportunityQueue = require('../models/OpportunityQueue');
 const MonitoringLog = require('../models/MonitoringLog');
 const Job = require('../models/Job');
+const Profile = require('../models/Profile');
+const SearchProfile = require('../models/SearchProfile');
+const aiService = require('../services/aiService');
+const profileCompletenessService = require('../services/profileCompletenessService');
+
 
 exports.getSourceHealth = async (req, res) => {
     try {
@@ -92,10 +97,7 @@ exports.recordLearningFeedback = async (req, res) => {
     }
 };
 
-const profileCompletenessService = require('../services/profileCompletenessService');
-const Profile = require('../models/Profile');
-const SearchProfile = require('../models/SearchProfile');
-const aiService = require('../services/aiService');
+
 
 exports.getProfileCompleteness = async (req, res) => {
     try {

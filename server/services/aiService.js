@@ -74,6 +74,8 @@ async function generateContentWithFallback(prompt, userId, isJson = false) {
     return fallbackText;
 }
 
+exports.generateContentWithFallback = generateContentWithFallback;
+
 /**
  * Analyzes a job opportunity against a user profile.
  */
