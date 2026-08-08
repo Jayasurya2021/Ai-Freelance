@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useProfileMode } from '../context/ProfileContext';
-import { CheckCircle2, X, Settings, Briefcase, UploadCloud, FileText } from 'lucide-react';
+import { CheckCircle2, X, Settings, Briefcase, UploadCloud, FileText, Trash2, Edit3, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AISettings from './AISettings';
 import SourceManager from './SourceManager';
@@ -64,6 +64,7 @@ const Profile = () => {
     expectedSalary: '',
     noticePeriod: '',
     preferredLocations: [],
+    resumeText: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -73,6 +74,7 @@ const Profile = () => {
   
   // Modal states
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [isEditTextModalOpen, setIsEditTextModalOpen] = useState(false);
   const [selectedResumeFile, setSelectedResumeFile] = useState(null);
   const [resumePreviewUrl, setResumePreviewUrl] = useState('');
 
@@ -89,7 +91,8 @@ const Profile = () => {
           portfolioProjects: data.portfolioProjects || [],
           expectedSalary: data.expectedSalary || '',
           noticePeriod: data.noticePeriod || '',
-          preferredLocations: data.preferredLocations || []
+          preferredLocations: data.preferredLocations || [],
+          resumeText: data.resumeText || ''
         });
       } catch (err) {
         console.error('Failed to fetch profile', err);
@@ -118,6 +121,11 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRemoveResume = () => {
+    setProfileData({ ...profileData, resumeText: '' });
+    setHasChanges(true);
   };
 
   const handleModalFileSelect = (e) => {
@@ -162,6 +170,7 @@ const Profile = () => {
              noticePeriod: data.extractedData.noticePeriod || prev.noticePeriod,
              expectedSalary: data.extractedData.expectedSalary || prev.expectedSalary,
              preferredLocations: data.extractedData.preferredLocations?.length > 0 ? [...new Set([...prev.preferredLocations, ...data.extractedData.preferredLocations])] : prev.preferredLocations,
+             resumeText: data.resumeText || prev.resumeText
          }));
          setHasChanges(true);
          setMessage('Resume parsed! Form auto-filled successfully.');
@@ -218,32 +227,59 @@ const Profile = () => {
       <div className="space-y-8">
         {activeTab === 'profile' && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            {/* Main Upload Hero Section */}
-            <div className="flex flex-col items-center justify-center p-12 bg-white border border-zinc-200 rounded-2xl shadow-sm text-center">
-              <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
-                <UploadCloud className="text-indigo-500 w-8 h-8" />
+            {/* Resume Status / Upload Section */}
+            {profileData.resumeText ? (
+              <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden">
+                <div className="p-5 md:p-6 bg-zinc-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 shadow-inner">
+                      <FileText size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-zinc-900">Reference Resume Active</h3>
+                      <p className="text-sm text-zinc-500">Your resume is parsed and ready to generate proposals.</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button type="button" onClick={() => setIsEditTextModalOpen(true)} className="px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition flex items-center gap-2">
+                      <Edit3 size={16} /> Edit Text
+                    </button>
+                    <button type="button" onClick={() => setIsResumeModalOpen(true)} className="px-4 py-2 text-sm font-bold text-zinc-700 bg-white border border-zinc-200 hover:bg-zinc-50 rounded-xl transition flex items-center gap-2 shadow-sm">
+                      <RefreshCw size={16} /> Replace
+                    </button>
+                    <button type="button" onClick={handleRemoveResume} className="px-4 py-2 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition flex items-center gap-2">
+                      <Trash2 size={16} /> Remove
+                    </button>
+                  </div>
+                </div>
               </div>
-              <h2 className="text-2xl font-bold text-zinc-900 mb-6">Upload your reference resume</h2>
-              
-              <div className="flex items-center gap-4 mb-6">
-                <button 
-                  type="button"
-                  onClick={() => setIsResumeModalOpen(true)}
-                  className="px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl flex items-center gap-2 hover:bg-indigo-700 transition shadow-sm"
-                >
-                  <UploadCloud size={18} />
-                  Upload File
-                </button>
-                <button type="button" className="px-6 py-2.5 bg-white border border-zinc-200 text-zinc-700 font-bold rounded-xl flex items-center gap-2 hover:bg-zinc-50 transition shadow-sm">
-                  <FileText size={18} />
-                  Quick Draft
-                </button>
+            ) : (
+              <div className="flex flex-col items-center justify-center p-12 bg-white border border-zinc-200 rounded-2xl shadow-sm text-center">
+                <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
+                  <UploadCloud className="text-indigo-500 w-8 h-8" />
+                </div>
+                <h2 className="text-2xl font-bold text-zinc-900 mb-6">Upload your reference resume</h2>
+                
+                <div className="flex items-center gap-4 mb-6">
+                  <button 
+                    type="button"
+                    onClick={() => setIsResumeModalOpen(true)}
+                    className="px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl flex items-center gap-2 hover:bg-indigo-700 transition shadow-sm"
+                  >
+                    <UploadCloud size={18} />
+                    Upload File
+                  </button>
+                  <button type="button" className="px-6 py-2.5 bg-white border border-zinc-200 text-zinc-700 font-bold rounded-xl flex items-center gap-2 hover:bg-zinc-50 transition shadow-sm">
+                    <FileText size={18} />
+                    Quick Draft
+                  </button>
+                </div>
+                
+                <p className="text-zinc-500 max-w-md text-sm leading-relaxed">
+                  To get started, please upload your core resume. We'll parse it and you can use it to generate tailored versions for any job application.
+                </p>
               </div>
-              
-              <p className="text-zinc-500 max-w-md text-sm leading-relaxed">
-                To get started, please upload your core resume. We'll parse it and you can use it to generate tailored versions for any job application.
-              </p>
-            </div>
+            )}
             <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
                 <div className="p-5 md:p-6 bg-zinc-50/50 border-b border-zinc-200">
                   <h3 className="text-lg font-bold text-zinc-900">
@@ -437,6 +473,51 @@ const Profile = () => {
                     {isUploading ? 'Uploading & Parsing...' : 'Upload & Auto-Fill'}
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Resume Text Modal */}
+      <AnimatePresence>
+        {isEditTextModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-zinc-900 w-full max-w-3xl rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900">
+                <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <Edit3 size={20} className="text-indigo-600" />
+                  Edit Parsed Resume Text
+                </h2>
+                <button onClick={() => setIsEditTextModalOpen(false)} className="p-2 rounded-lg text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition">
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="p-6 flex-1 overflow-y-auto bg-zinc-50 dark:bg-zinc-900/50">
+                <p className="text-sm text-zinc-500 mb-4">
+                  This is the raw text extracted from your resume. The AI uses this text to generate proposals and fill out your profile. You can manually tweak it here to add missing information or correct formatting.
+                </p>
+                <textarea 
+                  className="w-full min-h-[400px] p-4 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-mono text-sm leading-relaxed focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none resize-y"
+                  value={profileData.resumeText}
+                  onChange={(e) => {
+                    setProfileData({...profileData, resumeText: e.target.value});
+                    setHasChanges(true);
+                  }}
+                  placeholder="Paste or type your resume text here..."
+                />
+              </div>
+
+              <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex justify-end gap-3">
+                <button onClick={() => setIsEditTextModalOpen(false)} className="px-6 py-2.5 rounded-xl font-bold text-zinc-600 hover:bg-zinc-100 transition">
+                  Done
+                </button>
               </div>
             </motion.div>
           </div>
