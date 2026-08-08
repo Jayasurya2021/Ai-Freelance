@@ -21,10 +21,11 @@ exports.uploadResume = async (req, res) => {
         // 1. Extract Text based on file type
         if (fileExtension === 'pdf') {
             const parser = new PDFParse({
-                data: new Uint8Array(req.file.buffer)
+                data: req.file.buffer
             });
             const data = await parser.getText();
             extractedText = data.text;
+            console.log(`[PDF Parse] Extracted ${extractedText.length} characters.`);
             await parser.destroy();
         } else if (fileExtension === 'doc' || fileExtension === 'docx') {
             const data = await mammoth.extractRawText({ buffer: req.file.buffer });
@@ -47,17 +48,18 @@ exports.uploadResume = async (req, res) => {
 
         // 3. Extract Structured Profile Data using AI
         const extractedData = await aiService.extractProfileFromResume(extractedText, userId);
+        console.log(`[AI Extraction] Result:`, extractedData);
         
         // 4. Update Profile with extracted data
         if (extractedData.skills && extractedData.skills.length > 0) {
             // Merge skills uniquely
-            userProfile.skills = [...new Set([...userProfile.skills, ...extractedData.skills])];
+            userProfile.skills = [...new Set([...(userProfile.skills || []), ...extractedData.skills])];
         }
         if (extractedData.experience) userProfile.experience = extractedData.experience;
         if (extractedData.noticePeriod) userProfile.noticePeriod = extractedData.noticePeriod;
         if (extractedData.expectedSalary) userProfile.expectedSalary = extractedData.expectedSalary;
         if (extractedData.preferredLocations && extractedData.preferredLocations.length > 0) {
-            userProfile.preferredLocations = [...new Set([...userProfile.preferredLocations, ...extractedData.preferredLocations])];
+            userProfile.preferredLocations = [...new Set([...(userProfile.preferredLocations || []), ...extractedData.preferredLocations])];
         }
 
         await userProfile.save();
