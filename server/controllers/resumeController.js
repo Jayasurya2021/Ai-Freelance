@@ -23,7 +23,7 @@ exports.uploadResume = async (req, res) => {
         // 1. Extract Text based on file type
         if (fileExtension === 'pdf') {
             const parser = new PDFParse({
-                data: req.file.buffer
+                data: new Uint8Array(req.file.buffer)
             });
             const data = await parser.getText();
             extractedText = data.text;
@@ -36,8 +36,8 @@ exports.uploadResume = async (req, res) => {
             return res.status(400).json({ message: 'Unsupported file type. Please upload a PDF or DOCX.' });
         }
 
-        if (extractedText.trim() === '') {
-            return res.status(400).json({ message: 'Could not extract any text from the document.' });
+        if (extractedText.trim() === '' || extractedText.length < 50) {
+            return res.status(400).json({ message: 'Could not extract enough text from the document. Please ensure it is a text-based PDF and not an image/scanned PDF.' });
         }
 
         // 2. Save text to profile and file to disk
