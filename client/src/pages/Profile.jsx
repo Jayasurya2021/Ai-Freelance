@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useProfileMode } from '../context/ProfileContext';
-import { CheckCircle2, X, Settings, Briefcase, UploadCloud } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { CheckCircle2, X, Settings, Briefcase, UploadCloud, FileText } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import AISettings from './AISettings';
 import SourceManager from './SourceManager';
 
@@ -70,6 +70,11 @@ const Profile = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
+  
+  // Modal states
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [selectedResumeFile, setSelectedResumeFile] = useState(null);
+  const [resumePreviewUrl, setResumePreviewUrl] = useState('');
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -115,15 +120,30 @@ const Profile = () => {
     }
   };
 
-  const handleFileUpload = async (e) => {
+  const handleModalFileSelect = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (file) {
+      setSelectedResumeFile(file);
+      if (resumePreviewUrl) URL.revokeObjectURL(resumePreviewUrl);
+      setResumePreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const closeResumeModal = () => {
+    setIsResumeModalOpen(false);
+    setSelectedResumeFile(null);
+    if (resumePreviewUrl) URL.revokeObjectURL(resumePreviewUrl);
+    setResumePreviewUrl('');
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedResumeFile) return;
 
     setIsUploading(true);
     setMessage('');
     
     const formData = new FormData();
-    formData.append('resumeFile', file);
+    formData.append('resumeFile', selectedResumeFile);
     formData.append('userId', user?.id || '');
     formData.append('mode', profileMode);
 
@@ -154,6 +174,7 @@ const Profile = () => {
       setMessage('Failed to upload and parse resume.');
     } finally {
       setIsUploading(false);
+      closeResumeModal();
     }
   };
 
@@ -165,13 +186,6 @@ const Profile = () => {
           <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm md:text-base">
             Configure your {profileMode === 'freelance' ? 'Freelance' : 'Job'} profile for AI-curated opportunities.
           </p>
-        </div>
-        <div>
-          <label className={`cursor-pointer bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-indigo-700 transition flex items-center gap-2 ${isUploading ? 'opacity-70 pointer-events-none' : ''}`}>
-             <UploadCloud size={18} />
-             {isUploading ? 'Uploading & Parsing...' : 'Upload Resume to Auto-Fill'}
-             <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFileUpload} />
-          </label>
         </div>
       </div>
 
@@ -324,12 +338,90 @@ const Profile = () => {
           </div>
         )}
 
-        <div className="pt-4 flex justify-end sticky bottom-6 z-10">
+        <div className="pt-4 flex justify-end sticky bottom-6 z-10 gap-4">
+          {activeTab === 'profile' && (
+            <button type="button" onClick={() => setIsResumeModalOpen(true)} className="px-6 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700">
+              <UploadCloud size={18} />
+              Upload Resume to Auto-Fill
+            </button>
+          )}
           <button type="button" onClick={handleSubmit} disabled={loading || !hasChanges} className={`px-8 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-2 ${hasChanges ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-zinc-200 text-zinc-500 cursor-not-allowed'}`}>
             {loading ? 'Saving...' : 'Save All Configurations'}
           </button>
         </div>
       </div>
+
+      {/* Resume Upload & Preview Modal */}
+      <AnimatePresence>
+        {isResumeModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-zinc-900 w-full max-w-4xl rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900">
+                <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <FileText size={20} className="text-indigo-600" />
+                  Preview & Upload Resume
+                </h2>
+                <button onClick={closeResumeModal} className="p-2 rounded-lg text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition">
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="p-6 flex-1 overflow-y-auto bg-zinc-50 dark:bg-zinc-900/50 flex flex-col gap-6">
+                {!resumePreviewUrl ? (
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl p-12 bg-white dark:bg-zinc-900 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition">
+                    <UploadCloud size={48} className="text-indigo-500 mb-4" />
+                    <span className="text-lg font-bold text-zinc-900 dark:text-white mb-2">Click to select resume</span>
+                    <span className="text-sm text-zinc-500">PDF, DOC, DOCX up to 10MB</span>
+                    <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleModalFileSelect} />
+                  </label>
+                ) : (
+                  <div className="flex-1 min-h-[500px] border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden bg-white">
+                    {selectedResumeFile?.type === 'application/pdf' ? (
+                      <object data={resumePreviewUrl} type="application/pdf" width="100%" height="100%" className="w-full h-full min-h-[500px]">
+                        <p className="p-4 text-center text-zinc-500">PDF preview not available. <a href={resumePreviewUrl} target="_blank" rel="noreferrer" className="text-indigo-500 hover:underline">Download here</a>.</p>
+                      </object>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full min-h-[500px] p-6 text-center">
+                        <FileText size={64} className="text-indigo-500 mb-4" />
+                        <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">{selectedResumeFile?.name}</h3>
+                        <p className="text-zinc-500">Preview not available for this file type, but it is ready to upload.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex justify-between items-center">
+                {selectedResumeFile && (
+                  <label className="cursor-pointer text-sm font-bold text-indigo-600 hover:text-indigo-700 transition">
+                    Choose different file
+                    <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleModalFileSelect} />
+                  </label>
+                )}
+                {!selectedResumeFile && <div></div>}
+                
+                <div className="flex items-center gap-3">
+                  <button onClick={closeResumeModal} className="px-5 py-2.5 rounded-xl font-bold text-zinc-600 hover:bg-zinc-100 transition">
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleFileUpload} 
+                    disabled={!selectedResumeFile || isUploading}
+                    className={`px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition shadow-md ${!selectedResumeFile || isUploading ? 'bg-zinc-300 text-zinc-500 cursor-not-allowed' : 'bg-emerald-500 text-white hover:bg-emerald-600'}`}
+                  >
+                    {isUploading ? 'Uploading & Parsing...' : 'Upload & Auto-Fill'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
