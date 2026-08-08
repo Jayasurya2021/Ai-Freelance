@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useProfileMode } from '../context/ProfileContext';
-import { CheckCircle2, X, Settings, Briefcase, UploadCloud, FileText, Trash2, Edit3, RefreshCw } from 'lucide-react';
+import { CheckCircle2, X, Settings, Briefcase, UploadCloud, FileText, Trash2, Eye, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AISettings from './AISettings';
 import SourceManager from './SourceManager';
@@ -74,7 +74,7 @@ const Profile = () => {
   
   // Modal states
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
-  const [isEditTextModalOpen, setIsEditTextModalOpen] = useState(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [selectedResumeFile, setSelectedResumeFile] = useState(null);
   const [resumePreviewUrl, setResumePreviewUrl] = useState('');
 
@@ -241,8 +241,8 @@ const Profile = () => {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <button type="button" onClick={() => setIsEditTextModalOpen(true)} className="px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition flex items-center gap-2">
-                      <Edit3 size={16} /> Edit Text
+                    <button type="button" onClick={() => setIsPreviewModalOpen(true)} className="px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition flex items-center gap-2">
+                      <Eye size={16} /> Preview
                     </button>
                     <button type="button" onClick={() => setIsResumeModalOpen(true)} className="px-4 py-2 text-sm font-bold text-zinc-700 bg-white border border-zinc-200 hover:bg-zinc-50 rounded-xl transition flex items-center gap-2 shadow-sm">
                       <RefreshCw size={16} /> Replace
@@ -479,9 +479,9 @@ const Profile = () => {
         )}
       </AnimatePresence>
 
-      {/* Edit Resume Text Modal */}
+      {/* Resume Text Preview Modal */}
       <AnimatePresence>
-        {isEditTextModalOpen && (
+        {isPreviewModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -491,32 +491,26 @@ const Profile = () => {
             >
               <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900">
                 <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                  <Edit3 size={20} className="text-indigo-600" />
-                  Edit Parsed Resume Text
+                  <Eye size={20} className="text-indigo-600" />
+                  Parsed Resume Preview
                 </h2>
-                <button onClick={() => setIsEditTextModalOpen(false)} className="p-2 rounded-lg text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition">
+                <button onClick={() => setIsPreviewModalOpen(false)} className="p-2 rounded-lg text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition">
                   <X size={20} />
                 </button>
               </div>
               
               <div className="p-6 flex-1 overflow-y-auto bg-zinc-50 dark:bg-zinc-900/50">
                 <p className="text-sm text-zinc-500 mb-4">
-                  This is the raw text extracted from your resume. The AI uses this text to generate proposals and fill out your profile. You can manually tweak it here to add missing information or correct formatting.
+                  This is the raw text extracted from your resume. The AI uses this text to generate proposals and fill out your profile.
                 </p>
-                <textarea 
-                  className="w-full min-h-[400px] p-4 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-mono text-sm leading-relaxed focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none resize-y"
-                  value={profileData.resumeText}
-                  onChange={(e) => {
-                    setProfileData({...profileData, resumeText: e.target.value});
-                    setHasChanges(true);
-                  }}
-                  placeholder="Paste or type your resume text here..."
-                />
+                <div className="w-full p-4 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-mono text-sm leading-relaxed whitespace-pre-wrap select-text">
+                  {profileData.resumeText}
+                </div>
               </div>
 
               <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex justify-end gap-3">
-                <button onClick={() => setIsEditTextModalOpen(false)} className="px-6 py-2.5 rounded-xl font-bold text-zinc-600 hover:bg-zinc-100 transition">
-                  Done
+                <button onClick={() => setIsPreviewModalOpen(false)} className="px-6 py-2.5 rounded-xl font-bold text-zinc-600 hover:bg-zinc-100 transition">
+                  Close
                 </button>
               </div>
             </motion.div>
