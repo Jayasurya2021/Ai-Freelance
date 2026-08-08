@@ -93,6 +93,7 @@ const Profile = () => {
           expectedSalary: data.expectedSalary || '',
           noticePeriod: data.noticePeriod || '',
           preferredLocations: data.preferredLocations || [],
+          careerGoals: data.careerGoals || [],
           resumeText: data.resumeText || '',
           resumeFileUrl: data.resumeFileUrl || ''
         });
@@ -172,6 +173,10 @@ const Profile = () => {
              noticePeriod: data.extractedData.noticePeriod || prev.noticePeriod,
              expectedSalary: data.extractedData.expectedSalary || prev.expectedSalary,
              preferredLocations: data.extractedData.preferredLocations?.length > 0 ? [...new Set([...prev.preferredLocations, ...data.extractedData.preferredLocations])] : prev.preferredLocations,
+             hourlyRate: data.extractedData.hourlyRate || prev.hourlyRate,
+             preferredTechnologies: data.extractedData.preferredTechnologies?.length > 0 ? [...new Set([...prev.preferredTechnologies, ...data.extractedData.preferredTechnologies])] : prev.preferredTechnologies,
+             portfolioProjects: data.extractedData.portfolioProjects?.length > 0 ? [...new Set([...prev.portfolioProjects, ...data.extractedData.portfolioProjects])] : prev.portfolioProjects,
+             careerGoals: data.extractedData.careerGoals?.length > 0 ? [...new Set([...prev.careerGoals, ...data.extractedData.careerGoals])] : prev.careerGoals,
              resumeText: data.resumeText || prev.resumeText,
              resumeFileUrl: data.resumeFileUrl || prev.resumeFileUrl
          }));

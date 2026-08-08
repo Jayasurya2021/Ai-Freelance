@@ -83,6 +83,16 @@ exports.uploadResume = async (req, res) => {
         if (extractedData.preferredLocations && extractedData.preferredLocations.length > 0) {
             userProfile.preferredLocations = [...new Set([...(userProfile.preferredLocations || []), ...extractedData.preferredLocations])];
         }
+        if (extractedData.hourlyRate) userProfile.hourlyRate = extractedData.hourlyRate;
+        if (extractedData.preferredTechnologies && extractedData.preferredTechnologies.length > 0) {
+            userProfile.preferredTechnologies = [...new Set([...(userProfile.preferredTechnologies || []), ...extractedData.preferredTechnologies])];
+        }
+        if (extractedData.portfolioProjects && extractedData.portfolioProjects.length > 0) {
+            userProfile.portfolioProjects = [...new Set([...(userProfile.portfolioProjects || []), ...extractedData.portfolioProjects])];
+        }
+        if (extractedData.careerGoals && extractedData.careerGoals.length > 0) {
+            userProfile.careerGoals = [...new Set([...(userProfile.careerGoals || []), ...extractedData.careerGoals])];
+        }
 
         await userProfile.save();
 

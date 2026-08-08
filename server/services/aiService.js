@@ -309,6 +309,10 @@ exports.extractProfileFromResume = async (resumeText, userId) => {
         - noticePeriod: String (e.g., "Immediate", "2 Weeks", "1 Month"). Guess based on typical patterns if not explicitly stated, or leave empty string if unsure.
         - preferredLocations: Array of strings. Look for location preferences or current location.
         - expectedSalary: Number. If not found, return 0. (Do not include currency symbols, just the number).
+        - hourlyRate: Number. If not found, return 0.
+        - preferredTechnologies: Array of strings. Key tech stack the person works with.
+        - portfolioProjects: Array of strings. List of project names, URLs, or descriptions.
+        - careerGoals: Array of strings. 
 
         Resume Text:
         """${resumeText}"""
@@ -319,7 +323,11 @@ exports.extractProfileFromResume = async (resumeText, userId) => {
             "experience": "string",
             "noticePeriod": "string",
             "preferredLocations": ["string", "string"],
-            "expectedSalary": 100000
+            "expectedSalary": 100000,
+            "hourlyRate": 50,
+            "preferredTechnologies": ["string"],
+            "portfolioProjects": ["string"],
+            "careerGoals": ["string"]
         }
         `;
         
